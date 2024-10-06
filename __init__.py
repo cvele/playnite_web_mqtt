@@ -32,14 +32,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "device_id": device.id,
         "device": device,
         "mqtt_handler": mqtt_handler,
-        "switches": {}
+        "switches": {},
     }
 
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setups(
-            entry,
-            ["switch", "button"]
-            )
+            entry, ["switch", "button"]
+        )
     )
 
     if hass.is_running:
@@ -48,9 +47,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         await mqtt_handler.send_library_request()
     else:
-        _LOGGER.info(
-            "HASS not fully started, scheduling library request."
-        )
+        _LOGGER.info("HASS not fully started, scheduling library request.")
 
         def schedule_library_request():
             hass.loop.call_soon_threadsafe(
@@ -63,10 +60,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     connection_topic = f"{topic_base}/connection"
     await async_subscribe(
-        hass, connection_topic,
+        hass,
+        connection_topic,
         lambda msg: hass.async_create_task(
             handle_playnite_connection(hass, msg, entry.entry_id)
-        )
+        ),
     )
 
     return True
