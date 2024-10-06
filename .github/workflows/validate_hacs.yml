@@ -1,7 +1,6 @@
 name: HACS Action
 
 on:
-  push:
   pull_request:
   merge_group:
   schedule:
@@ -15,4 +14,4 @@ jobs:
       - name: HACS Action
         uses: "hacs/action@main"
         with:
-          category: "CHANGE_ME!"
+          category: "integration"
