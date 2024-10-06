@@ -3,6 +3,7 @@
   "name": "Playnite Web MQTT",
   "version": "1.0",
   "requirements": ["Pillow>=9.0.0", "voluptuous>=0.12.0"],
+  "documentation": "https://github.com/cvele/hass_playnite_web_mqtt",
   "dependencies": ["mqtt"],
   "codeowners": ["@cvele"],
   "config_flow": true,
