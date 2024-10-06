@@ -9,12 +9,12 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -37,7 +37,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: v$(bumpversion --dry-run --list | grep new_version | sed -r s,"^.*=",,"g")
-          name: "Release v$(bumpversion --dry-run --list | grep new_version | sed -r s,\"^.*=\",,\"g\")"
+          name: 'Release v$(bumpversion --dry-run --list | grep new_version | sed -r s,"^.*=",,"g")'
           body: "Automatic release with version bump."
           draft: false
           prerelease: false

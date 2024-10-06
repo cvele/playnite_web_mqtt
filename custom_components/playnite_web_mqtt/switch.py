@@ -2,15 +2,16 @@ import logging
 import json
 from io import BytesIO
 import base64
-import collections
+from collections import defaultdict
 import asyncio
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity_registry import async_get
+from typing import List, DefaultDict
 
 MAX_CONCURRENT_COMPRESSIONS = 5
 compression_semaphore = asyncio.Semaphore(MAX_CONCURRENT_COMPRESSIONS)
-COVER_IMAGE_QUEUE = collections.defaultdict(list)
+COVER_IMAGE_QUEUE: DefaultDict[str, List[str]] = defaultdict(list)
 DOMAIN = "playnite_web_mqtt"
 _LOGGER = logging.getLogger(__name__)
 

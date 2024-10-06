@@ -23,7 +23,7 @@
     {
       "label": "Install Production Dependencies",
       "type": "shell",
-      "command": "pip install -r requirements.txt",
+      "command": "pip install -r custom_components/playnite_web_mqtt/requirements.txt",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -33,7 +33,7 @@
     {
       "label": "Install Development Dependencies",
       "type": "shell",
-      "command": "pip install -r requirements-dev.txt",
+      "command": "pip install -r custom_components/playnite_web_mqtt/requirements-dev.txt",
       "group": {
         "kind": "build",
         "isDefault": false
