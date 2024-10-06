@@ -29,7 +29,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class PlayniteRequestLibraryButton(ButtonEntity):
     """Represents a button to request the game library from Playnite."""
 
-    def __init__(self, hass, topic_base, device, config_entry, mqtt_handler: MqttHandler):
+    def __init__(
+        self, hass, topic_base, device, config_entry, mqtt_handler: MqttHandler
+    ):
         """Initialize the button entity."""
         self.hass = hass
         self._topic_base = topic_base
@@ -56,7 +58,7 @@ class PlayniteRequestLibraryButton(ButtonEntity):
                 "manufacturer": self.device.manufacturer,
                 "model": self.device.model,
                 "name": self.device.name,
-                "via_device": self.device.via_device_id
+                "via_device": self.device.via_device_id,
             }
         else:
             _LOGGER.error("Device information is not available.")
