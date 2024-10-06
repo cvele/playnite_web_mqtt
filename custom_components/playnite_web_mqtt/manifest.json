@@ -1,11 +1,11 @@
 {
+  "domain": "playnite_web_mqtt",
+  "name": "Playnite Web MQTT",
   "codeowners": ["@cvele"],
   "config_flow": true,
   "dependencies": ["mqtt"],
   "documentation": "https://github.com/cvele/hass_playnite_web_mqtt",
-  "domain": "playnite_web_mqtt",
   "iot_class": "local_push",
-  "name": "Playnite Web MQTT",
   "requirements": ["Pillow>=9.0.0", "voluptuous>=0.12.0"],
   "version": "1.0"
 }
