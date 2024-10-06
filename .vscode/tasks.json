@@ -4,20 +4,20 @@
     {
       "label": "Lint with Flake8",
       "type": "shell",
-      "command": "flake8 playnite_web_mqtt/",
+      "command": "flake8 .",
       "group": "test",
       "problemMatcher": ["$flake8"]
     },
     {
       "label": "Check formatting with Black",
       "type": "shell",
-      "command": "black --check playnite_web_mqtt/",
+      "command": "black --check .",
       "group": "test"
     },
     {
       "label": "Security check with Bandit",
       "type": "shell",
-      "command": "bandit -r playnite_web_mqtt/",
+      "command": "bandit -r .",
       "group": "test"
     },
     {
