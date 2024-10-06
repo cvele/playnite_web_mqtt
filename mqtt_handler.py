@@ -73,7 +73,6 @@ class MqttHandler:
             try:
                 if payload is None:
                     payload = ''
-                
                 _LOGGER.debug(f"Publishing to {topic} with payload: {payload}")
                 await async_publish(self.hass, topic, payload)
                 return
