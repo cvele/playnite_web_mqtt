@@ -295,7 +295,7 @@ class PlayniteGameSwitch(SwitchEntity):
             return image_data
 
     def _compress_image_logic(self, image_data):
-        # sourcery skip: extract-duplicate-method, inline-immediately-returned-variable
+        # sourcery skip: extract-duplicate-method
         """Optimized image compression logic based on initial size estimate."""
         from PIL import Image, Resampling  # type: ignore
 
