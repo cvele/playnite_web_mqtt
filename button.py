@@ -22,7 +22,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     button = PlayniteRequestLibraryButton(hass, topic_base, device, config_entry, mqtt_handler)
     async_add_entities([button], True)
 
-
 class PlayniteRequestLibraryButton(ButtonEntity):
     """Represents a button to request the game library from Playnite."""
 
