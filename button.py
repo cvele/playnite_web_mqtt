@@ -11,15 +11,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up PlayniteRequestLibraryButton from a config entry."""
     topic_base = config_entry.data.get("topic_base")
 
-    # Fetch the device from the device registry
-    device_registry = dr.async_get(hass)
-    device = device_registry.async_get_device({(DOMAIN, topic_base)})
-
+    device = hass.data[DOMAIN][config_entry.entry_id]["device"]
     if device is None:
         _LOGGER.error("No device found for topic base %s", topic_base)
         return
 
-    mqtt_handler = MqttHandler(hass, topic_base)
+    mqtt_handler = hass.data[DOMAIN][config_entry.entry_id]["mqtt_handler"]
     button = PlayniteRequestLibraryButton(
         hass, topic_base, device, config_entry, mqtt_handler
     )
@@ -70,4 +67,6 @@ class PlayniteRequestLibraryButton(ButtonEntity):
         try:
             await self.mqtt_handler.send_library_request()
         except Exception as e:
-            _LOGGER.error(f"Failed to send library request: {e}")
+            _LOGGER.error(
+                "Failed to send library request: %s", e
+            )

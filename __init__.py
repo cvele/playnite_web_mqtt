@@ -30,6 +30,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     mqtt_handler = MqttHandler(hass, topic_base)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "device_id": device.id,
+        "device": device,
         "mqtt_handler": mqtt_handler,
         "switches": {}  # Add a dictionary to store switches by game_id
     }
