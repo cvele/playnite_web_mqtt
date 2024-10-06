@@ -209,7 +209,7 @@ class PlayniteGameSwitch(SwitchEntity):
             self._encoded_image = base64.b64encode(self._compressed_image_data).decode('utf-8')
         return f"data:image/jpeg;base64,{self._encoded_image}" if self._encoded_image else None
 
-        async def handle_cover_image(self, msg):
+    async def handle_cover_image(self, msg):
         """Handle the cover image received from the MQTT topic."""
         try:
             if isinstance(msg.payload, bytes):
