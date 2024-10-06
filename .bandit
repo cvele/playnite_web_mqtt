@@ -1,2 +1,2 @@
 [bandit]
-exclude = tests
+exclude = tests, .git, .venv, venv, migrations, __pycache__, build

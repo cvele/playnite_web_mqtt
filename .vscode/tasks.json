@@ -27,10 +27,24 @@
       "group": "test"
     },
     {
-      "label": "Run Tests with Pytest",
+      "label": "Install Production Dependencies",
       "type": "shell",
-      "command": "pytest --cov=.",
-      "group": "test"
+      "command": "pip install -r requirements.txt",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Development Dependencies",
+      "type": "shell",
+      "command": "pip install -r requirements-dev.txt",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
     }
   ]
 }

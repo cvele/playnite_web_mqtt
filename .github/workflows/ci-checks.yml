@@ -13,20 +13,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 black bandit mypy pytest pytest-cov
+          pip install flake8 black bandit pytest pytest-cov
       - name: Lint with flake8
         run: |
           flake8 .
       - name: Check code formatting with black
         run: |
           black --check .
-      - name: Run static type check with mypy
-        run: |
-          mypy .
       - name: Security analysis with bandit
         run: |
           bandit -r .

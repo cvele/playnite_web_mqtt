@@ -1,3 +1,11 @@
 [flake8]
+exclude = 
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    migrations,
+    build,
+    dist
 max-line-length = 79
-exclude = .git,__pycache__,venv
+max-complexity = 10
