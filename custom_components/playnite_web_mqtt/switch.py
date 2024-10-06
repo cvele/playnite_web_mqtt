@@ -119,7 +119,7 @@ async def handle_game_discovery(hass, msg, config_entry, async_add_entities):
     device_registry = dr.async_get(hass)
     device = device_registry.async_get_device({(DOMAIN, topic_base)})
 
-    entity_registry = await async_get(hass)
+    entity_registry = async_get(hass)
     if entity_registry.async_get_entity_id("switch", DOMAIN, unique_id):
         _LOGGER.info(
             "Switch for game %s with ID %s already exists. Skipping creation.",
