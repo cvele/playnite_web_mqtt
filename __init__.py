@@ -15,7 +15,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     topic_base = entry.data.get("topic_base")
 
     if not topic_base:
-        _LOGGER.error("No topic base provided in the config entry. Setup failed.")
+        _LOGGER.error("No topic base provided in the config entry.")
         return False
 
     device_registry = dr.async_get(hass)
@@ -27,16 +27,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         model="Playnite Web MQTT",
     )
 
-    # Initialize the MQTT handler and store it along with the entry_id in hass.data
     mqtt_handler = MqttHandler(hass, topic_base)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "device_id": device.id,
         "device": device,
         "mqtt_handler": mqtt_handler,
-        "switches": {}  # Add a dictionary to store switches by game_id
+        "switches": {}
     }
 
-    # Forward the setup for switch and button platforms
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setups(entry, ["switch", "button"])
     )
@@ -60,7 +58,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "homeassistant_started", lambda _: schedule_library_request()
         )
 
-    # Subscribe to Playnite connection status
     connection_topic = f"{topic_base}/connection"
     await async_subscribe(
         hass, connection_topic,
