@@ -2,8 +2,7 @@ name: CI Checks
 
 on:
   pull_request:
-    branches:
-      - main
+  merge_group:
 
 jobs:
   lint:
