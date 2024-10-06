@@ -1,0 +1,10 @@
+{
+    "name": "Playnite Web MQTT",
+    "content_in_root": true,
+    "domains": [
+        "playnite_web_mqtt"
+    ],
+    "country": "RS",
+    "homeassistant": "2021.12.0",
+    "render_readme": true
+}
