@@ -48,17 +48,17 @@ class PlayniteRequestLibraryButton(ButtonEntity):
     @property
     def device_info(self):
         """Device info this entity to tie it to the PlayniteWeb instance."""
-        if self.device:
-            return {
-                "identifiers": self.device.identifiers,
-                "manufacturer": self.device.manufacturer,
-                "model": self.device.model,
-                "name": self.device.name,
-                "via_device": self.device.via_device_id,
-            }
-        else:
+        if not self.device:
             _LOGGER.error("Device information is not available.")
             return None
+
+        return {
+            "identifiers": self.device.identifiers,
+            "manufacturer": self.device.manufacturer,
+            "model": self.device.model,
+            "name": self.device.name,
+            "via_device": self.device.via_device_id,
+        }
 
     async def async_press(self):
         """Handle the button press."""
@@ -66,6 +66,4 @@ class PlayniteRequestLibraryButton(ButtonEntity):
         try:
             await self.mqtt_handler.send_library_request()
         except Exception as e:
-            _LOGGER.error(
-                "Failed to send library request: %s", e
-            )
+            _LOGGER.error("Failed to send library request: %s", e)

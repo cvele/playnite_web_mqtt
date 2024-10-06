@@ -35,7 +35,10 @@ class MqttHandler:
                 self.releases_and_cover_topic,
             )
             self._unsubscribe_callback = await async_subscribe(
-                self.hass, self.releases_and_cover_topic, callback, encoding=None
+                self.hass,
+                self.releases_and_cover_topic,
+                callback,
+                encoding=None,
             )
         except Exception as e:
             _LOGGER.error("Failed to subscribe to game updates: %s", e)
@@ -70,7 +73,7 @@ class MqttHandler:
         await self._publish_mqtt_message(topic, game_data.get("id"))
 
     async def send_library_request(self):
-        """Send an MQTT message to request the game library. No payload needed."""
+        """Send an MQTT message to request the game library."""
         topic = "playnite/request/library"
         await self._publish_mqtt_message(topic)
 
@@ -81,7 +84,9 @@ class MqttHandler:
             try:
                 if payload is None:
                     payload = ""
-                _LOGGER.debug("Publishing to %s with payload: %s", topic, payload)
+                _LOGGER.debug(
+                    "Publishing to %s with payload: %s", topic, payload
+                )
                 await async_publish(self.hass, topic, payload)
                 return
             except Exception as e:

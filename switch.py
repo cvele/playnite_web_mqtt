@@ -24,14 +24,18 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         )
     )
     await setup_mqtt_subscription(
-        hass, mqtt_handler, handle_mqtt_message, config_entry, async_add_entities
+        hass,
+        mqtt_handler,
+        handle_mqtt_message,
+        config_entry,
+        async_add_entities,
     )
 
 
 async def setup_mqtt_subscription(
     hass, mqtt_handler, callback, config_entry, async_add_entities
 ):
-    """Set up the single MQTT subscription for both game discovery and cover updates."""
+    """Set up the MQTT subscription for both game discovery and covers."""
 
     def callback_wrapper(msg):
         hass.loop.call_soon_threadsafe(
@@ -53,8 +57,11 @@ async def handle_game_state_update(hass, msg, config_entry):
             _LOGGER.error("Game state update missing game ID.")
             return
 
-        switch = hass.data[DOMAIN][config_entry.entry_id]["switches"].get(game_id)
-        if not switch:
+        if not (
+            switch := hass.data[DOMAIN][config_entry.entry_id]["switches"].get(
+                game_id
+            )
+        ):
             _LOGGER.warning("No switch found for game ID %s.", game_id)
             return
 
@@ -63,18 +70,22 @@ async def handle_game_state_update(hass, msg, config_entry):
 
     except json.JSONDecodeError as e:
         _LOGGER.error(
-            "Failed to decode game state message: %s. Message: %s", e, msg.payload
+            "Failed to decode game state message: %s. Message: %s",
+            e,
+            msg.payload,
         )
 
 
 async def handle_mqtt_message(hass, msg, config_entry, async_add_entities):
-    """Handle the MQTT message and determine if it's a game discovery or cover image."""
+    """Handle the MQTT message and determine if it's a game or cover."""
     topic = msg.topic
     try:
         if "release" in topic and "cover" in topic:
             await handle_cover_image(hass, msg, config_entry)
         elif "release" in topic:
-            await handle_game_discovery(hass, msg, config_entry, async_add_entities)
+            await handle_game_discovery(
+                hass, msg, config_entry, async_add_entities
+            )
         else:
             _LOGGER.warning("Unhandled topic: %s", topic)
     except Exception as e:
@@ -108,9 +119,7 @@ async def handle_game_discovery(hass, msg, config_entry, async_add_entities):
     device = device_registry.async_get_device({(DOMAIN, topic_base)})
 
     entity_registry = await async_get(hass)
-    existing_entity = entity_registry.async_get_entity_id("switch", DOMAIN, unique_id)
-
-    if existing_entity:
+    if entity_registry.async_get_entity_id("switch", DOMAIN, unique_id):
         _LOGGER.info(
             "Switch for game %s with ID %s already exists. Skipping creation.",
             game_name,
@@ -120,7 +129,9 @@ async def handle_game_discovery(hass, msg, config_entry, async_add_entities):
 
     # Create and add the Playnite game switch entity
     switch_data = {"id": game_id, "name": game_name}
-    switch = PlayniteGameSwitch(switch_data, hass, device, topic_base, config_entry)
+    switch = PlayniteGameSwitch(
+        switch_data, hass, device, topic_base, config_entry
+    )
 
     # Store the switch by game_id for quick lookup
     hass.data[DOMAIN][config_entry.entry_id]["switches"][game_id] = switch
@@ -143,14 +154,14 @@ async def handle_cover_image(hass, msg, config_entry):
 
     if len(topic_parts) >= 6:
         game_id = topic_parts[4]
-        switch = hass.data[DOMAIN][config_entry.entry_id]["switches"].get(game_id)
-
-        if switch:
+        if switch := hass.data[DOMAIN][config_entry.entry_id]["switches"].get(
+            game_id
+        ):
             # Switch already exists, handle the cover image
             await switch.handle_cover_image(msg)
         else:
             _LOGGER.warning(
-                "No switch found for game ID %s to update cover image. Queueing the message.",
+                "No switch found game ID %s to update cover. Queueing...",
                 game_id,
             )
             # Queue the cover image for later processing
@@ -171,7 +182,9 @@ class PlayniteGameSwitch(SwitchEntity):
         self.device = device
         self.hass = hass
         self.topic_base = topic_base
-        self.mqtt_handler = hass.data[DOMAIN][config_entry.entry_id]["mqtt_handler"]
+        self.mqtt_handler = hass.data[DOMAIN][config_entry.entry_id][
+            "mqtt_handler"
+        ]
         self.config_entry = config_entry
         self._image_data = None
         self._compressed_image_data = None
@@ -217,7 +230,7 @@ class PlayniteGameSwitch(SwitchEntity):
 
     @property
     def device_info(self):
-        """Return device info for this entity to tie it to the Playnite Web instance."""
+        """Return device info for this entity to tie it to the PlayniteWeb."""
         if self.device:
             return {
                 "identifiers": self.device.identifiers,
@@ -226,17 +239,16 @@ class PlayniteGameSwitch(SwitchEntity):
                 "name": self.device.name,
                 "via_device": self.device.via_device_id,
             }
-        else:
-            _LOGGER.error("Device information is not available.")
-            return None
+        _LOGGER.error("Device information is not available.")
+        return None
 
     @property
     def entity_picture(self):
         """Return the URL to the entity picture, encoded in base64."""
         if self._image_data and not self._encoded_image:
-            self._encoded_image = base64.b64encode(self._compressed_image_data).decode(
-                "utf-8"
-            )
+            self._encoded_image = base64.b64encode(
+                self._compressed_image_data
+            ).decode("utf-8")
         return (
             f"data:image/jpeg;base64,{self._encoded_image}"
             if self._encoded_image
@@ -254,34 +266,36 @@ class PlayniteGameSwitch(SwitchEntity):
                 )
                 self._image_data = msg.payload
                 if self._compressed_image_data is None:
-                    # Use a semaphore to control the number of concurrent compressions
+                    # semaphore to control the # of concurrent compressions
                     async with compression_semaphore:
-                        self._compressed_image_data = await self.compress_image(
-                            self._image_data
+                        self._compressed_image_data = (
+                            await self.compress_image(self._image_data)
                         )
                 self.schedule_update_ha_state()
             else:
-                _LOGGER.error("Expected binary payload, but got %s.", type(msg.payload))
+                _LOGGER.error(
+                    "Expected binary payload, but got %s.", type(msg.payload)
+                )
         except Exception as e:
             _LOGGER.error("Failed to handle cover image: %s", e)
 
     async def compress_image(self, image_data):
-        """Compress the image by reducing quality, then dimensions if needed."""
+        """Compress the image by reducing quality, dimensions if needed."""
         if len(image_data) <= 14500:
             return image_data
 
         try:
             loop = self.hass.loop
             # Use the semaphore to limit the number of concurrent compressions
-            compressed_image_data = await loop.run_in_executor(
+            return await loop.run_in_executor(
                 None, self._compress_image_logic, image_data
             )
-            return compressed_image_data
         except Exception as e:
             _LOGGER.error("Failed to compress image: %s", e)
             return image_data
 
     def _compress_image_logic(self, image_data):
+        # sourcery skip: extract-duplicate-method, inline-immediately-returned-variable
         """Optimized image compression logic based on initial size estimate."""
         from PIL import Image, Resampling  # type: ignore
 
@@ -289,9 +303,9 @@ class PlayniteGameSwitch(SwitchEntity):
         image = Image.open(BytesIO(image_data))
         initial_size = len(image_data)
         quality = 95
-        minimum_quality = 60
 
         if initial_size > max_size_bytes:
+            minimum_quality = 60
             compression_factor = max_size_bytes / initial_size
             estimated_quality = int(quality * compression_factor)
             quality = max(estimated_quality, minimum_quality)
@@ -316,7 +330,11 @@ class PlayniteGameSwitch(SwitchEntity):
         new_height = int(height * resize_factor)
 
         _LOGGER.info(
-            "Resizing image from %dx%d to %dx%d", width, height, new_width, new_height
+            "Resizing image from %dx%d to %dx%d",
+            width,
+            height,
+            new_width,
+            new_height,
         )
 
         image = image.resize((new_width, new_height), Resampling.LANCZOS)

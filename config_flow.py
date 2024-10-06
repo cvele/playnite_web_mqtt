@@ -15,18 +15,22 @@ class PlayniteMQTTConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         if user_input is not None:
             # Validate user input here if needed
-            return self.async_create_entry(title="Playnite Web MQTT", data=user_input)
+            return self.async_create_entry(
+                title="Playnite Web MQTT", data=user_input
+            )
 
-        data_schema = vol.Schema({
-            vol.Required("mqtt_broker"): str,
-            vol.Required("mqtt_port", default=1883): int,
-            vol.Optional("mqtt_username"): str,
-            vol.Optional("mqtt_password"): str,
-            vol.Optional(
-                "topic_base",
-                default="playnite/playniteweb_<your-pc-name>",
-            ): str,
-        })
+        data_schema = vol.Schema(
+            {
+                vol.Required("mqtt_broker"): str,
+                vol.Required("mqtt_port", default=1883): int,
+                vol.Optional("mqtt_username"): str,
+                vol.Optional("mqtt_password"): str,
+                vol.Optional(
+                    "topic_base",
+                    default="playnite/playniteweb_<your-pc-name>",
+                ): str,
+            }
+        )
 
         return self.async_show_form(
             step_id="user", data_schema=data_schema, errors=errors
@@ -50,23 +54,27 @@ class PlayniteMQTTOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        data_schema = vol.Schema({
-            vol.Required(
-                "mqtt_broker",
-                default=self.config_entry.options.get("mqtt_broker", ""),
-            ): str,
-            vol.Optional(
-                "mqtt_username",
-                default=self.config_entry.options.get("mqtt_username", ""),
-            ): str,
-            vol.Optional(
-                "mqtt_password",
-                default=self.config_entry.options.get("mqtt_password", ""),
-            ): str,
-            vol.Optional(
-                "topic_base",
-                default=self.config_entry.options.get("topic_base", "playnite"),
-            ): str,
-        })
+        data_schema = vol.Schema(
+            {
+                vol.Required(
+                    "mqtt_broker",
+                    default=self.config_entry.options.get("mqtt_broker", ""),
+                ): str,
+                vol.Optional(
+                    "mqtt_username",
+                    default=self.config_entry.options.get("mqtt_username", ""),
+                ): str,
+                vol.Optional(
+                    "mqtt_password",
+                    default=self.config_entry.options.get("mqtt_password", ""),
+                ): str,
+                vol.Optional(
+                    "topic_base",
+                    default=self.config_entry.options.get(
+                        "topic_base", "playnite"
+                    ),
+                ): str,
+            }
+        )
 
         return self.async_show_form(step_id="init", data_schema=data_schema)
