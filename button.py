@@ -6,6 +6,7 @@ from .mqtt_handler import MqttHandler
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "playnite_web_mqtt"
 
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up PlayniteRequestLibraryButton from a config entry."""
     topic_base = config_entry.data.get("topic_base")
@@ -19,8 +20,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         return
 
     mqtt_handler = MqttHandler(hass, topic_base)
-    button = PlayniteRequestLibraryButton(hass, topic_base, device, config_entry, mqtt_handler)
+    button = PlayniteRequestLibraryButton(
+        hass, topic_base, device, config_entry, mqtt_handler
+    )
     async_add_entities([button], True)
+
 
 class PlayniteRequestLibraryButton(ButtonEntity):
     """Represents a button to request the game library from Playnite."""
