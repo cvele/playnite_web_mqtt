@@ -1,4 +1,3 @@
-import json
 import logging
 import asyncio
 from homeassistant.components.mqtt import async_subscribe
