@@ -76,7 +76,7 @@ async def handle_playnite_connection(hass: HomeAssistant, msg, entry_id):
     """Trigger library request if playniteweb online."""
     try:
         connection_status = msg.payload.decode("utf-8")
-        _LOGGER.debug(f"Playnite connection status: {connection_status}")
+        _LOGGER.debug("Playnite connection status: %s", connection_status)
 
         if connection_status == "online":
             mqtt_handler = hass.data[DOMAIN][entry_id]["mqtt_handler"]
@@ -84,4 +84,4 @@ async def handle_playnite_connection(hass: HomeAssistant, msg, entry_id):
             await mqtt_handler.send_library_request()
 
     except Exception as e:
-        _LOGGER.error(f"Error handling Playnite connection status: {e}")
+        _LOGGER.error("Error handling Playnite connection status: %s", e)
