@@ -47,7 +47,7 @@ class PlayniteRequestLibraryButton(ButtonEntity):
 
     @property
     def device_info(self):
-        """Return device info for this entity to tie it to the Playnite Web instance."""
+        """Device info for this entity to tie it to the PlayniteWeb instance."""
         if self.device:
             return {
                 "identifiers": self.device.identifiers,
