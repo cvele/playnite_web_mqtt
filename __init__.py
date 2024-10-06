@@ -9,6 +9,7 @@ from .mqtt_handler import MqttHandler
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "playnite_web_mqtt"
 
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Playnite Web MQTT from a config entry."""
     topic_base = entry.data.get("topic_base")
@@ -41,28 +42,40 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     if hass.is_running:
-        _LOGGER.info("Home Assistant is already running, sending library request immediately.")
-        await mqtt_handler.send_library_request()  # Directly await if Home Assistant is running
+        _LOGGER.info(
+            "Home Assistant is already running, sending library request immediately."
+        )
+        await mqtt_handler.send_library_request()
     else:
-        _LOGGER.info("Home Assistant not fully started, scheduling library request for when ready.")
-        # Ensure the task is called in the correct thread using `hass.loop.call_soon_threadsafe`
+        _LOGGER.info(
+            "Home Assistant not fully started, scheduling library request for when ready."
+        )
+
         def schedule_library_request():
             hass.loop.call_soon_threadsafe(
                 hass.async_create_task, mqtt_handler.send_library_request()
             )
 
-        hass.bus.async_listen_once("homeassistant_started", lambda _: schedule_library_request())
+        hass.bus.async_listen_once(
+            "homeassistant_started", lambda _: schedule_library_request()
+        )
 
     # Subscribe to Playnite connection status
     connection_topic = f"{topic_base}/connection"
-    await async_subscribe(hass, connection_topic, lambda msg: hass.async_create_task(handle_playnite_connection(hass, msg, entry.entry_id)))
+    await async_subscribe(
+        hass, connection_topic,
+        lambda msg: hass.async_create_task(
+            handle_playnite_connection(hass, msg, entry.entry_id)
+        )
+    )
 
     return True
+
 
 async def handle_playnite_connection(hass: HomeAssistant, msg, entry_id):
     """Handle Playnite connection status and trigger library request if online."""
     try:
-        connection_status = msg.payload.decode('utf-8')
+        connection_status = msg.payload.decode("utf-8")
         _LOGGER.debug(f"Received Playnite connection status: {connection_status}")
 
         if connection_status == "online":
