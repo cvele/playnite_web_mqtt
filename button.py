@@ -39,7 +39,7 @@ class PlayniteRequestLibraryButton(ButtonEntity):
     def name(self):
         """Return the name of the button."""
         return "Request Game Library"
-    
+
     @property
     def unique_id(self):
         """Return a unique ID for the button."""
