@@ -39,7 +39,7 @@ class PlayniteRequestLibraryButton(ButtonEntity):
     def name(self):
         """Return the name of the button."""
         return "Request Game Library"
-
+    
     @property
     def unique_id(self):
         """Return a unique ID for the button."""
@@ -47,7 +47,7 @@ class PlayniteRequestLibraryButton(ButtonEntity):
 
     @property
     def device_info(self):
-        """Device info for this entity to tie it to the PlayniteWeb instance."""
+        """Device info this entity to tie it to the PlayniteWeb instance."""
         if self.device:
             return {
                 "identifiers": self.device.identifiers,

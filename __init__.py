@@ -76,7 +76,7 @@ async def handle_playnite_connection(hass: HomeAssistant, msg, entry_id):
     """Trigger library request if playniteweb online."""
     try:
         connection_status = msg.payload.decode("utf-8")
-        _LOGGER.debug(f"Received Playnite connection status: {connection_status}")
+        _LOGGER.debug(f"Playnite connection status: {connection_status}")
 
         if connection_status == "online":
             mqtt_handler = hass.data[DOMAIN][entry_id]["mqtt_handler"]
