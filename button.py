@@ -1,6 +1,5 @@
 import logging
 from homeassistant.components.button import ButtonEntity
-from homeassistant.helpers import device_registry as dr
 from .mqtt_handler import MqttHandler
 
 _LOGGER = logging.getLogger(__name__)
