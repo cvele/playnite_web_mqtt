@@ -36,17 +36,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
 
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setups(entry, ["switch", "button"])
+        hass.config_entries.async_forward_entry_setups(
+            entry, 
+            ["switch", "button"]
+            )
     )
 
     if hass.is_running:
         _LOGGER.info(
-            "Home Assistant is already running, sending library request immediately."
+            "HASS is already running, sending library request immediately."
         )
         await mqtt_handler.send_library_request()
     else:
         _LOGGER.info(
-            "Home Assistant not fully started, scheduling library request for when ready."
+            "HASS not fully started, scheduling library request."
         )
 
         def schedule_library_request():
@@ -70,7 +73,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def handle_playnite_connection(hass: HomeAssistant, msg, entry_id):
-    """Handle Playnite connection status and trigger library request if online."""
+    """Trigger library request if playniteweb online."""
     try:
         connection_status = msg.payload.decode("utf-8")
         _LOGGER.debug(f"Received Playnite connection status: {connection_status}")
