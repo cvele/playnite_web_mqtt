@@ -1,0 +1,105 @@
+name: New Version PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      semver_input:
+        description: "Enter a version (optional)"
+        required: false
+        default: ""
+
+jobs:
+  new_version_pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Get the latest tag
+        id: get_latest_tag
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Latest tag: $LATEST_TAG"
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Parse the latest tag and bump minor version if no input provided
+        id: set_version
+        run: |
+          if [ "${{ github.event.inputs.semver_input }}" != "" ]; then
+            NEW_VERSION=${{ github.event.inputs.semver_input }}
+          else
+            LATEST_TAG=${{ env.latest_tag }}
+            VERSION_REGEX="^v([0-9]+)\.([0-9]+)\.([0-9]+)$"
+            if [[ $LATEST_TAG =~ $VERSION_REGEX ]]; then
+              MAJOR="${BASH_REMATCH[1]}"
+              MINOR="${BASH_REMATCH[2]}"
+              PATCH="${BASH_REMATCH[3]}"
+              PATCH=$((PATCH + 1))
+              NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+            else
+              echo "Latest tag does not follow semantic versioning. Using fallback v0.0.0."
+              NEW_VERSION="v0.0.0"
+            fi
+          fi
+          echo "New version: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Check if tag already exists
+        run: |
+          git fetch --tags
+          if git rev-parse "$NEW_VERSION" >/dev/null 2>&1; then
+              echo "Tag $NEW_VERSION already exists. Exiting."
+              exit 1
+          fi
+
+      - name: Create a new branch
+        run: |
+          git checkout -b release/${{ env.new_version }}
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          trust_level: 5
+          git_config_global: true
+
+      - name: Create VERSION file with new version
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          echo "${{ env.new_version }}" > VERSION
+          git add VERSION
+          git commit -m "Release version ${{ env.new_version }}"
+
+      - name: Push new branch
+        run: |
+          git push origin release/${{ env.new_version }}
+
+      - name: Create pull request using GitHub CLI
+        run: |
+          gh pr create -B main -H release/${{ env.new_version }} \
+            --title 'Release ${{ env.new_version }}' \
+            --body 'This PR includes the new version file and changes.'
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+      - name: Enable auto-merge for the pull request
+        run: |
+          pr_number=$(gh pr list --head "release/${{ env.new_version }}" --json number --jq '.[0].number')
+          gh pr merge $pr_number --auto --squash
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+      - name: Add comment to pull request
+        run: |
+          pr_number=$(gh pr list --head "release/${{ env.new_version }}" --json number --jq '.[0].number')
+          gh pr comment $pr_number --body "@sourcery-ai review"
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}

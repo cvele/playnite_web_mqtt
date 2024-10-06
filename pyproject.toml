@@ -1,0 +1,15 @@
+[tool.black]
+line-length = 79
+exclude = '''
+/(
+    \.git     |    # Git folder
+    \.venv    |    # Virtual environment
+    venv      |    # Sometimes venv is named without a dot
+    security  |    # Security-related files
+    migrations|    # Database migration files
+    tests     |    # Unit tests
+    .*\.pyc   |    # Compiled Python files
+    .*\.pyo   |    # Optimized Python files
+    __pycache__    # Python cache files
+)/$
+'''
