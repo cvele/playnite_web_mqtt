@@ -9,12 +9,13 @@ from .mqtt_handler import MqttHandler
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "playnite_web_mqtt"
 
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Playnite Web MQTT from a config entry."""
     topic_base = entry.data.get("topic_base")
 
     if not topic_base:
-        _LOGGER.error("No topic base provided in the config entry. Setup failed.")
+        _LOGGER.error("No topic base provided in the config entry.")
         return False
 
     device_registry = dr.async_get(hass)
@@ -26,43 +27,54 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         model="Playnite Web MQTT",
     )
 
-    # Initialize the MQTT handler and store it along with the entry_id in hass.data
     mqtt_handler = MqttHandler(hass, topic_base)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "device_id": device.id,
+        "device": device,
         "mqtt_handler": mqtt_handler,
-        "switches": {}  # Add a dictionary to store switches by game_id
+        "switches": {},
     }
 
-    # Forward the setup for switch and button platforms
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setups(entry, ["switch", "button"])
+        hass.config_entries.async_forward_entry_setups(
+            entry, ["switch", "button"]
+        )
     )
 
     if hass.is_running:
-        _LOGGER.info("Home Assistant is already running, sending library request immediately.")
-        await mqtt_handler.send_library_request()  # Directly await if Home Assistant is running
+        _LOGGER.info(
+            "HASS is already running, sending library request immediately."
+        )
+        await mqtt_handler.send_library_request()
     else:
-        _LOGGER.info("Home Assistant not fully started, scheduling library request for when ready.")
-        # Ensure the task is called in the correct thread using `hass.loop.call_soon_threadsafe`
+        _LOGGER.info("HASS not fully started, scheduling library request.")
+
         def schedule_library_request():
             hass.loop.call_soon_threadsafe(
                 hass.async_create_task, mqtt_handler.send_library_request()
             )
 
-        hass.bus.async_listen_once("homeassistant_started", lambda _: schedule_library_request())
+        hass.bus.async_listen_once(
+            "homeassistant_started", lambda _: schedule_library_request()
+        )
 
-    # Subscribe to Playnite connection status
     connection_topic = f"{topic_base}/connection"
-    await async_subscribe(hass, connection_topic, lambda msg: hass.async_create_task(handle_playnite_connection(hass, msg, entry.entry_id)))
+    await async_subscribe(
+        hass,
+        connection_topic,
+        lambda msg: hass.async_create_task(
+            handle_playnite_connection(hass, msg, entry.entry_id)
+        ),
+    )
 
     return True
 
+
 async def handle_playnite_connection(hass: HomeAssistant, msg, entry_id):
-    """Handle Playnite connection status and trigger library request if online."""
+    """Trigger library request if playniteweb online."""
     try:
-        connection_status = msg.payload.decode('utf-8')
-        _LOGGER.debug(f"Received Playnite connection status: {connection_status}")
+        connection_status = msg.payload.decode("utf-8")
+        _LOGGER.debug("Playnite connection status: %s", connection_status)
 
         if connection_status == "online":
             mqtt_handler = hass.data[DOMAIN][entry_id]["mqtt_handler"]
@@ -70,4 +82,4 @@ async def handle_playnite_connection(hass: HomeAssistant, msg, entry_id):
             await mqtt_handler.send_library_request()
 
     except Exception as e:
-        _LOGGER.error(f"Error handling Playnite connection status: {e}")
+        _LOGGER.error("Error handling Playnite connection status: %s", e)

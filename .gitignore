@@ -1,0 +1,123 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Pipenv
+# Only if you are using Pipenv
+Pipfile.lock
+
+# Poetry
+# Only if you are using Poetry
+poetry.lock
+.poetry/
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
+__pypackages__/
+
+# Home Assistant configuration directory
+# This typically includes sensitive data such as secrets.yaml
+home-assistant_v2.db
+home-assistant_v2.db-shm
+home-assistant_v2.db-wal
+*.log
+*.db
+*.db-shm
+*.db-wal
+
+# Local testing and development artifacts
+.vscode/
+*.local/
+.coverage
+.tox/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+test-results.xml
+
+# Docker related files
+*.log
+*.pid
+*.bak
+.env
+.dockerignore
+
+# Pyre type checker
+.pyre/
+
+# Mypy type checker
+.mypy_cache/
+dmypy.json
+dmypy.sock
+
+# Unit test / coverage reports
+htmlcov/
+.cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Virtualenv
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# PyCharm
+.idea/
+
+# Home Assistant secrets and settings
+secrets.yaml
+custom_components/*/__pycache__/
+custom_components/*/*.pyc
+custom_components/*/*.pyo
+
+# Hass.io Supervisor
+addons/local/
+ssl/
+share/
+backup/
+media/
+
+# Local dev or temp files
+*.swp
+*~
+*.bak
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Ignore private key files
+*.pem

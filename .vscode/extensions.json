@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "ms-python.python", // Main Python extension
+    "ms-python.black-formatter", // Black formatter
+    "ms-python.flake8", // Flake8 linter
+    "ms-python.mypy-type-checker", // Mypy type checker
+    "ms-python.bandit-security", // Bandit for security analysis
+    "streetsidesoftware.code-spell-checker" // Code Spell Checker for spell checking
+  ]
+}

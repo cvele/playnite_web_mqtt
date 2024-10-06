@@ -1,0 +1,50 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Lint with Flake8",
+      "type": "shell",
+      "command": "flake8 .",
+      "group": "test",
+      "problemMatcher": ["$flake8"]
+    },
+    {
+      "label": "Check formatting with Black",
+      "type": "shell",
+      "command": "black --check .",
+      "group": "test"
+    },
+    {
+      "label": "Type check with Mypy",
+      "type": "shell",
+      "command": "mypy .",
+      "group": "test"
+    },
+    {
+      "label": "Security check with Bandit",
+      "type": "shell",
+      "command": "bandit -r .",
+      "group": "test"
+    },
+    {
+      "label": "Install Production Dependencies",
+      "type": "shell",
+      "command": "pip install -r requirements.txt",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Development Dependencies",
+      "type": "shell",
+      "command": "pip install -r requirements-dev.txt",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}
