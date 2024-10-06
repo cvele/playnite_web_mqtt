@@ -19,10 +19,10 @@ jobs:
           pip install flake8 black bandit pytest pytest-cov
       - name: Lint with flake8
         run: |
-          flake8 playnite_web_mqtt/
+          flake8 .
       - name: Check code formatting with black
         run: |
-          black --check playnite_web_mqtt/
+          black --check .
       - name: Security analysis with bandit
         run: |
-          bandit -r playnite_web_mqtt/
+          bandit -r .
