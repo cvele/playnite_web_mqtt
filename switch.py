@@ -5,7 +5,6 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity_registry import async_get
 from io import BytesIO
 import base64
-import concurrent.futures
 import collections
 import asyncio
 
