@@ -21,6 +21,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     await mqtt_handler.subscribe_to_game_state(lambda msg: hass.loop.create_task(handle_game_state_update(hass, msg, config_entry)))
     await setup_mqtt_subscription(hass, mqtt_handler, topic_base, handle_mqtt_message, config_entry, async_add_entities)
 
+
 async def setup_mqtt_subscription(hass, mqtt_handler, topic_base, callback, config_entry, async_add_entities):
     """Set up the single MQTT subscription for both game discovery and cover updates."""
     
@@ -28,6 +29,7 @@ async def setup_mqtt_subscription(hass, mqtt_handler, topic_base, callback, conf
         hass.loop.call_soon_threadsafe(hass.async_create_task, callback(hass, msg, config_entry, async_add_entities))
 
     await mqtt_handler.subscribe_to_game_updates(callback_wrapper)
+
 
 async def handle_game_state_update(hass, msg, config_entry):
     """Handle incoming game state updates from the single subscription."""
@@ -51,6 +53,7 @@ async def handle_game_state_update(hass, msg, config_entry):
     except json.JSONDecodeError as e:
         _LOGGER.error(f"Failed to decode game state message: {e}. Message: {msg.payload}")
 
+
 async def handle_mqtt_message(hass, msg, config_entry, async_add_entities):
     """Handle the MQTT message and determine if it's a game discovery or cover image."""
     topic = msg.topic
@@ -63,6 +66,7 @@ async def handle_mqtt_message(hass, msg, config_entry, async_add_entities):
             _LOGGER.warning(f"Unhandled topic: {topic}")
     except Exception as e:
         _LOGGER.error(f"Error handling MQTT message: {e}")
+
 
 async def handle_game_discovery(hass, msg, config_entry, async_add_entities):
     """Handle the discovery of a game and create a switch for each game."""
@@ -112,6 +116,7 @@ async def handle_game_discovery(hass, msg, config_entry, async_add_entities):
         for queued_msg in COVER_IMAGE_QUEUE.pop(game_id):
             await switch.handle_cover_image(queued_msg)
 
+
 async def handle_cover_image(hass, msg, config_entry):
     """Handle the cover image received from the MQTT topic."""
     # Extract game ID from the correct position in the topic path
@@ -131,6 +136,7 @@ async def handle_cover_image(hass, msg, config_entry):
             COVER_IMAGE_QUEUE[game_id].append(msg)
     else:
         _LOGGER.warning(f"Unexpected topic format: {msg.topic}")
+        
 
 class PlayniteGameSwitch(SwitchEntity):
     """Represents a Playnite game switch that controls game state."""
