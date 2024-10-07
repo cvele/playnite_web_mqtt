@@ -1,43 +1,47 @@
-name: Create Release
+name: Create Release After CI Checks
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI Checks"]
+    types:
+      - completed
 
 jobs:
-  create-release:
+  release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Check for changes in custom_components directory
+        id: check_changes
+        run: |
+          if git diff --name-only HEAD^ HEAD | grep -q '^custom_components/'; then
+            echo "Changes detected in custom_components"
+            echo "changes=true" >> $GITHUB_ENV
+          else
+            echo "No changes in custom_components"
+            echo "changes=false" >> $GITHUB_ENV
+          fi
+      - name: Get the tag version
+        id: get_version
+        run: |
+          VERSION=${{ github.event.workflow_run.head_branch }}
+          echo "Tag version: $VERSION"
+          echo "::set-output name=version::$VERSION"
+      - name: Generate release notes
+        id: generate_release_notes
+        run: |
+          NOTES=$(git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"%h - %s")
+          echo "Release notes: $NOTES"
+          echo "::set-output name=notes::$NOTES"
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel
-
-      - name: Bump Version
-        id: version
-        run: |
-          pip install bump2version
-          bump2version patch --allow-dirty
-
-      - name: Create Git Tag
-        run: |
-          git tag -a v$(bumpversion --dry-run --list | grep new_version | sed -r s,"^.*=",,"g") -m "Release"
-          git push origin --tags
-
-      - name: Create Release
-        id: create_release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: v$(bumpversion --dry-run --list | grep new_version | sed -r s,"^.*=",,"g")
-          name: 'Release v$(bumpversion --dry-run --list | grep new_version | sed -r s,"^.*=",,"g")'
-          body: "Automatic release with version bump."
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: ${{ steps.get_version.outputs.version }}
+          body: ${{ steps.generate_release_notes.outputs.notes }}
           draft: false
           prerelease: false
