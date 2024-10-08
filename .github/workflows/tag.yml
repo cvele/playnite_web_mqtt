@@ -61,13 +61,12 @@ jobs:
 
       - name: Import GPG key
         run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          env:
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+        env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
 
       - name: Create and push the signed tag
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           git tag -s ${{ env.new_version }} -m "Release ${{ env.new_version }}" --local-user "GPG_KEY_ID"
