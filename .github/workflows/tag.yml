@@ -64,5 +64,5 @@ jobs:
 
       - name: Create and push the signed tag
         run: |
-          git tag -s ${{ env.new_version }} -m "Release ${{ env.new_version }}"
+          git tag ${{ env.new_version }}
           git push origin refs/tags/${{ env.new_version }}
