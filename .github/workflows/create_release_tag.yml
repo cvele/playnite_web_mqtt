@@ -65,7 +65,7 @@ jobs:
       - name: Create and push tag
         if: env.is_release_branch == 'true'
         run: |
-          git tag ${{ env.VERSION }} --sign
+          git tag ${{ env.VERSION }} -m "${{ env.VERSION }}" --sign
           git push upstream main --tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
