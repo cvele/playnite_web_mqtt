@@ -65,6 +65,7 @@ jobs:
           git push origin --tags
 
       - uses: release-drafter/release-drafter@v5
+        if: env.is_release_branch == 'true'
         with:
           disable-autolabeler: true
           name: ${{ env.VERSION }}
