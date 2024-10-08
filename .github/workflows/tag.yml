@@ -81,4 +81,4 @@ jobs:
       - name: Create and push the signed tag
         run: |
           git tag ${{ env.new_version }}
-          git push origin refs/tags/${{ env.new_version }}
+          git push --force origin refs/tags/${{ env.new_version }}
