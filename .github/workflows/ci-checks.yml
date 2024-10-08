@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  lint:
+  ci-checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
