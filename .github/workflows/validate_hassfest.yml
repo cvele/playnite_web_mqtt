@@ -5,9 +5,6 @@ on:
   merge_group:
   schedule:
     - cron: "0 0 * * *"
-  push:
-    branches:
-      - "main"
 jobs:
   validate-hassfest:
     runs-on: "ubuntu-latest"
