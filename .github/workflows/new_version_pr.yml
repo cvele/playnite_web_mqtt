@@ -100,7 +100,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: sourcery-ai/action@v1
-        with:
-          token: ${{ secrets.SOURCERY_TOKEN }}
-          diff_ref: ${{ github.event.pull_request.base.sha }}
+      - name: Add comment to pull request
+        run: |
+          pr_number=$(gh pr list --head "release/${{ env.new_version }}" --json number --jq '.[0].number')
+          gh pr comment $pr_number --body "@sourcery-ai review"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
