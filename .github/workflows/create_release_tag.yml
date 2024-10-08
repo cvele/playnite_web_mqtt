@@ -1,4 +1,4 @@
-name: Auto Create Tag on Merge from Release Branch
+name: Auto Create Tag
 
 on:
   pull_request:
@@ -54,12 +54,13 @@ jobs:
         id: read_version
         run: |
           if [ -f "VERSION" ]; then
-          VERSION=$(cat VERSION)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Version found: $VERSION"
+            VERSION=$(cat VERSION)
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "Version found: $VERSION"
           else
-          echo "VERSION file not found, skipping."
-          exit 1
+            echo "VERSION file not found, skipping."
+            exit 1
+          fi
 
       - name: Create and push tag
         if: env.is_release_branch == 'true'
