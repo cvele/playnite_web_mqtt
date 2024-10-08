@@ -26,11 +26,16 @@ jobs:
           exit 0
           fi
 
-      - name: Set Git user identity
+      - name: Import GPG key
         if: env.is_release_branch == 'true'
-        run: |
-          git config --global user.name "Vladimir Cvetic"
-          git config --global user.email "vladimir@ferdinand.rs"
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          trust_level: 5
+          git_config_global: true
 
       - name: Checkout the repository
         if: env.is_release_branch == 'true'
@@ -54,7 +59,9 @@ jobs:
       - name: Create and push tag
         if: env.is_release_branch == 'true'
         run: |
-          git tag ${{ env.VERSION }}
-          git push origin main --tags
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag ${{ env.VERSION }} -m "${{ env.VERSION }}" --sign
+          git push origin --tags
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
