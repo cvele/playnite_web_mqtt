@@ -1,0 +1,70 @@
+name: Auto Create Tag on Merge from Release Branch
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+jobs:
+  create_tag:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if PR is from a release/v*.*.* branch
+        id: check_branch
+        run: |
+          PR_BRANCH=$(echo "${{ github.event.pull_request.head.ref }}")
+          if [[ "$PR_BRANCH" =~ ^release/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "PR is from a release branch."
+          echo "is_release_branch=true" >> $GITHUB_ENV
+          else
+          echo "PR is NOT from a release branch, skipping tag creation."
+          echo "is_release_branch=false" >> $GITHUB_ENV
+          exit 0
+          fi
+
+      - name: Set Git user identity
+        if: env.is_release_branch == 'true'
+        run: |
+          git config --global user.name "Vladimir Cvetic (Automatic Releases)"
+          git config --global user.email "vladimir@ferdinand.rs"
+
+      - name: Import GPG key
+        if: env.is_release_branch == 'true'
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          trust_level: 5
+          git_config_global: true
+
+      - name: Checkout the repository
+        if: env.is_release_branch == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from VERSION file
+        if: env.is_release_branch == 'true'
+        id: read_version
+        run: |
+          if [ -f "VERSION" ]; then
+          VERSION=$(cat VERSION)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version found: $VERSION"
+          else
+          echo "VERSION file not found, skipping."
+          exit 1
+
+      - name: Create and push tag
+        if: env.is_release_branch == 'true'
+        run: |
+          git tag ${{ env.VERSION }}
+          git push origin ${{ env.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
