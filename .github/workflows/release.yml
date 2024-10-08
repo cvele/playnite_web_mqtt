@@ -1,47 +1,35 @@
-name: Create Release After CI Checks
+name: Create Release
 
 on:
-  workflow_run:
-    workflows: ["CI Checks"]
-    types:
-      - completed
+  push:
+    tags:
+      - "v*.*.*"
 
 jobs:
   release:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Check for changes in custom_components directory
-        id: check_changes
+        with:
+          fetch-depth: 0
+      - name: Extract tag from GITHUB_REF
+        id: extract_tag
         run: |
-          if git diff --name-only HEAD^ HEAD | grep -q '^custom_components/'; then
-            echo "Changes detected in custom_components"
-            echo "changes=true" >> $GITHUB_ENV
-          else
-            echo "No changes in custom_components"
-            echo "changes=false" >> $GITHUB_ENV
-          fi
-      - name: Get the tag version
-        id: get_version
-        run: |
-          VERSION=${{ github.event.workflow_run.head_branch }}
-          echo "Tag version: $VERSION"
-          echo "::set-output name=version::$VERSION"
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "tag=$TAG" >> $GITHUB_ENV
       - name: Generate release notes
         id: generate_release_notes
         run: |
           NOTES=$(git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"%h - %s")
-          echo "Release notes: $NOTES"
           echo "::set-output name=notes::$NOTES"
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get_version.outputs.version }}
-          release_name: ${{ steps.get_version.outputs.version }}
+          tag_name: ${{ env.tag }}
+          release_name: ${{ env.tag }}
           body: ${{ steps.generate_release_notes.outputs.notes }}
           draft: false
           prerelease: false
