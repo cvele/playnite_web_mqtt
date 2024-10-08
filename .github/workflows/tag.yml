@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
 
       - name: Get the latest tag
         id: get_latest_tag
@@ -49,9 +50,10 @@ jobs:
 
       - name: Check if tag already exists
         run: |
+          git fetch --tags
           if git rev-parse "$NEW_VERSION" >/dev/null 2>&1; then
-            echo "Tag $NEW_VERSION already exists. Exiting."
-            exit 0
+              echo "Tag $NEW_VERSION already exists. Exiting."
+              exit 0
           fi
 
       - name: Import GPG key
@@ -63,7 +65,6 @@ jobs:
           git_commit_gpgsign: true
           trust_level: 5
           git_config_global: true
-          
 
       - name: Create and push the signed tag
         run: |
