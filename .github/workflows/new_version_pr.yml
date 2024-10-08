@@ -91,18 +91,18 @@ jobs:
             --title 'Release ${{ env.new_version }}' \
             --body 'This PR includes the new version file and changes.'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
 
       - name: Enable auto-merge for the pull request
         run: |
           pr_number=$(gh pr list --head "release/${{ env.new_version }}" --json number --jq '.[0].number')
           gh pr merge $pr_number --auto --squash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
 
       - name: Add comment to pull request
         run: |
           pr_number=$(gh pr list --head "release/${{ env.new_version }}" --json number --jq '.[0].number')
           gh pr comment $pr_number --body "@sourcery-ai review"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
