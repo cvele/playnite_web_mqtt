@@ -13,6 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set Git user identity
+        run: |
+          git config --global user.name "Vladimir Cvetic (Automatic Releases)"
+          git config --global user.email "vladimir@ferdinand.rs"
+
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v6
         with:
@@ -71,6 +76,7 @@ jobs:
           echo "${{ env.new_version }}" > VERSION
           git add VERSION
           git commit -m "Release version ${{ env.new_version }}"
+          git push origin main
 
       - name: Create and push the signed tag
         run: |
