@@ -66,6 +66,6 @@ jobs:
         if: env.is_release_branch == 'true'
         run: |
           git tag ${{ env.VERSION }} -m "${{ env.VERSION }}" --sign
-          git push upstream main --tags
+          git push origin main --tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
