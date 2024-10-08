@@ -56,6 +56,12 @@ jobs:
               exit 1
           fi
 
+      - name: Create VERSION file with new version
+        run: |
+          echo "${{ env.new_version }}" > VERSION
+          git add VERSION
+          git commit -m "Release version ${{ env.new_version }}"
+
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v6
         with:
