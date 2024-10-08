@@ -36,8 +36,7 @@ jobs:
               MAJOR="${BASH_REMATCH[1]}"
               MINOR="${BASH_REMATCH[2]}"
               PATCH="${BASH_REMATCH[3]}"
-              # Bump the minor version
-              MINOR=$((MINOR + 1))
+              PATCH=$((MINOR + 1))
               NEW_VERSION="v${MAJOR}.${MINOR}.0"
             else
               echo "Latest tag does not follow semantic versioning. Using fallback v0.0.0."
@@ -49,5 +48,5 @@ jobs:
 
       - name: Create and push the new tag
         run: |
-          git tag ${{ env.new_version }}
-          git push origin ${{ env.new_version }}
+          git tag -a ${{ env.new_version }} -m ${{ env.new_version }}
+          git push origin refs/tags/${{ env.new_version }}:refs/tags/${{ env.new_version }}
