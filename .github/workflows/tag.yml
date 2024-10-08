@@ -60,19 +60,12 @@ jobs:
             exit 0
           fi
 
-      - name: Import GPG key
+      - name: Create and push the signed tag
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-
-      - name: List imported GPG keys
-        run: |
           gpg --list-secret-keys --keyid-format LONG
-
-      - name: Create and push the signed tag
-        env:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
           git tag -s ${{ env.new_version }} -m "Release ${{ env.new_version }}"
           git push origin refs/tags/${{ env.new_version }}
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
