@@ -13,12 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set Git user identity
-        run: |
-          git config --global user.name "Vladimir Cvetic (Automatic Releases)"
-          git config --global user.email "vladimir@ferdinand.rs"
-          git config --global user.signingkey "6F6BF0E8DA0461F9"
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -62,9 +56,22 @@ jobs:
 
       - name: Create and push the signed tag
         run: |
+          git config --global user.name "Vladimir Cvetic (Automatic Releases)"
+          git config --global user.email "vladimir@ferdinand.rs"
+          git config --global user.signingkey "6F6BF0E8DA0461F9"
+
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-          git tag -s ${{ env.new_version }} -m "Release ${{ env.new_version }}"
+
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+
+          gpgconf --kill gpg-agent
+          gpgconf --launch gpg-agent
+
+          export GPG_TTY=$(tty)
+
+          git tag -s ${{ env.new_version }} -m "Release ${{ env.new_version }}" --no-sign --gpg-sign="6F6BF0E8DA0461F9" --pinentry-mode=loopback
+
           git push origin refs/tags/${{ env.new_version }}
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
