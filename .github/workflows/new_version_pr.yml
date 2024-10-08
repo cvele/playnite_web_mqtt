@@ -9,7 +9,7 @@ on:
         default: ""
 
 jobs:
-  create_tag:
+  new_version_pr:
     runs-on: ubuntu-latest
 
     steps:
@@ -90,5 +90,12 @@ jobs:
           gh pr create -B main -H release/${{ env.new_version }} \
             --title 'Release ${{ env.new_version }}' \
             --body 'This PR includes the new version file and changes.'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for the pull request
+        run: |
+          pr_number=$(gh pr list --head "release/${{ env.new_version }}" --json number --jq '.[0].number')
+          gh pr merge $pr_number --auto --squash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
