@@ -69,5 +69,5 @@ jobs:
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          git tag -s ${{ env.new_version }} -m "Release ${{ env.new_version }}" --local-user "GPG_KEY_ID"
+          git tag -s ${{ env.new_version }} -m "Release ${{ env.new_version }}" --local-user "6F6BF0E8DA0461F9"
           git push origin refs/tags/${{ env.new_version }}
