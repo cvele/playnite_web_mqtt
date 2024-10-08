@@ -13,11 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set Git user identity
-        run: |
-          git config --global user.name "Vladimir Cvetic"
-          git config --global user.email "vladimir@ferdinand.rs"
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
