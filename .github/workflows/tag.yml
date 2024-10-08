@@ -61,6 +61,9 @@ jobs:
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
           git_user_signingkey: true
           git_commit_gpgsign: true
+          trust_level: 5
+          git_config_global: true
+          
 
       - name: Create and push the signed tag
         run: |
