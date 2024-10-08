@@ -1,8 +1,5 @@
 {
   "name": "Playnite Web MQTT",
   "content_in_root": false,
-  "country": "RS",
-  "homeassistant": "2024.10.1",
-  "render_readme": true,
-  "domains": ["button", "switch"]
+  "homeassistant": "2024.10.1"
 }
