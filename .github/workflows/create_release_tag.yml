@@ -1,4 +1,4 @@
-name: Auto Create Tag
+name: Auto Create Tag & Release
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
       - closed
 
 jobs:
-  create_tag:
+  create_tag_release:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
@@ -62,5 +62,14 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git tag -a ${{ env.VERSION }} -m "${{ env.VERSION }}" --sign
-          git remote set-url origin https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }}
           git push origin --tags
+
+      - uses: release-drafter/release-drafter@v5
+        with:
+          disable-autolabeler: true
+          name: ${{ env.VERSION }}
+          tag: ${{ env.VERSION }}
+          version: ${{ env.VERSION }}
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
