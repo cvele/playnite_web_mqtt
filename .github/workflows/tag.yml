@@ -17,6 +17,7 @@ jobs:
         run: |
           git config --global user.name "Vladimir Cvetic (Automatic Releases)"
           git config --global user.email "vladimir@ferdinand.rs"
+          git config --global user.signingkey "6F6BF0E8DA0461F9"
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -64,6 +65,10 @@ jobs:
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: List imported GPG keys
+        run: |
+          gpg --list-secret-keys --keyid-format LONG
 
       - name: Create and push the signed tag
         env:
