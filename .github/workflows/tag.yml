@@ -20,19 +20,16 @@ jobs:
       - name: Get the latest tag
         id: get_latest_tag
         run: |
-          # Get the latest tag
-          LATEST_TAG=$(git describe --tags --abbrev=0)
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Latest tag: $LATEST_TAG"
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_ENV
 
       - name: Parse the latest tag and bump minor version if no input provided
         id: set_version
         run: |
-          # If semver_input is provided, use that. Otherwise, bump the minor version.
           if [ "${{ github.event.inputs.semver_input }}" != "" ]; then
             NEW_VERSION=${{ github.event.inputs.semver_input }}
           else
-            # Extract major, minor, and patch from the latest tag (assuming vMAJOR.MINOR.PATCH format)
             LATEST_TAG=${{ env.latest_tag }}
             VERSION_REGEX="^v([0-9]+)\.([0-9]+)\.([0-9]+)$"
             if [[ $LATEST_TAG =~ $VERSION_REGEX ]]; then
@@ -43,8 +40,8 @@ jobs:
               MINOR=$((MINOR + 1))
               NEW_VERSION="v${MAJOR}.${MINOR}.0"
             else
-              echo "Error: Latest tag $LATEST_TAG does not follow semantic versioning (vMAJOR.MINOR.PATCH)."
-              exit 1
+              echo "Latest tag does not follow semantic versioning. Using fallback v0.0.0."
+              NEW_VERSION="v0.0.0"
             fi
           fi
           echo "New version: $NEW_VERSION"
@@ -52,6 +49,5 @@ jobs:
 
       - name: Create and push the new tag
         run: |
-          # Create the new tag and push it to the repository
           git tag ${{ env.new_version }}
           git push origin ${{ env.new_version }}
