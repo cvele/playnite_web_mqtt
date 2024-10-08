@@ -67,5 +67,6 @@ jobs:
         run: |
           git tag ${{ env.VERSION }}
           git push origin ${{ env.VERSION }}
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
