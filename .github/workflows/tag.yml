@@ -11,6 +11,7 @@ on:
 jobs:
   create_tag:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,8 +37,8 @@ jobs:
               MAJOR="${BASH_REMATCH[1]}"
               MINOR="${BASH_REMATCH[2]}"
               PATCH="${BASH_REMATCH[3]}"
-              PATCH=$((MINOR + 1))
-              NEW_VERSION="v${MAJOR}.${MINOR}.0"
+              PATCH=$((PATCH + 1))
+              NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
             else
               echo "Latest tag does not follow semantic versioning. Using fallback v0.0.0."
               NEW_VERSION="v0.0.0"
@@ -45,6 +46,13 @@ jobs:
           fi
           echo "New version: $NEW_VERSION"
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Check if tag already exists
+        run: |
+          if git rev-parse "$NEW_VERSION" >/dev/null 2>&1; then
+            echo "Tag $NEW_VERSION already exists. Exiting."
+            exit 0
+          fi
 
       - name: Create and push the new tag
         run: |
