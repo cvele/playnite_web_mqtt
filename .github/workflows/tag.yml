@@ -54,25 +54,15 @@ jobs:
             exit 0
           fi
 
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+
       - name: Create and push the signed tag
         run: |
-          git config --global user.name "Vladimir Cvetic (Automatic Releases)"
-          git config --global user.email "vladimir@ferdinand.rs"
-          git config --global user.signingkey "6F6BF0E8DA0461F9"
-
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-
-          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
-          echo "use-agent" >> ~/.gnupg/gpg.conf
-
-          gpgconf --kill gpg-agent
-          gpgconf --launch gpg-agent
-
-          export GPG_TTY=$(tty)
-
-          git tag -s ${{ env.new_version }} -m "Release ${{ env.new_version }}" --no-sign --gpg-sign="6F6BF0E8DA0461F9" --pinentry-mode=loopback
-
+          git tag -s ${{ env.new_version }} -m "Release ${{ env.new_version }}"
           git push origin refs/tags/${{ env.new_version }}
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
