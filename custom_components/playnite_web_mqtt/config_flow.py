@@ -74,9 +74,7 @@ class PlayniteMQTTOptionsFlow(config_entries.OptionsFlow):
                     ),
                 ): str,
                 vol.Optional("max_image_size", default=14500): vol.All(
-                    vol.Coerce(int), vol.Range(min=1000, max=1000000)
-                ),
-                    vol.Coerce(int), vol.Range(min=1000)
+                    vol.Coerce(int), vol.Range(min=1000, max=15000)
                 ),
                 vol.Optional("min_quality", default=60): vol.All(
                     vol.Coerce(int), vol.Range(min=10, max=100)
