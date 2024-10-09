@@ -65,10 +65,16 @@ class ImageCompressor:
         image.save(buffer, format="JPEG", quality=quality)
         compressed_image_data = buffer.getvalue()
 
+        initial_size = len(image.tobytes())
         _LOGGER.info(
-            "Applied initial compression at quality %d: %d bytes",
+            "Compression process: Initial size: %d bytes, Quality: %d",
+            initial_size,
             quality,
+        )
+        _LOGGER.info(
+            "Compression result: Final size: %d bytes, Reduction: %.2f%%",
             len(compressed_image_data),
+            (1 - len(compressed_image_data) / initial_size) * 100,
         )
 
         return compressed_image_data
