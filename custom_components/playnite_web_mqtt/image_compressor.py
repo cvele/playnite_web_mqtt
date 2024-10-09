@@ -5,7 +5,6 @@ import asyncio
 
 _LOGGER = logging.getLogger(__name__)
 
-# Default values
 DEFAULT_MAX_IMAGE_SIZE_BYTES = 14500
 DEFAULT_MIN_QUALITY = 60
 DEFAULT_INITIAL_QUALITY = 95
@@ -28,6 +27,7 @@ class ImageCompressor:
         self.compression_semaphore = asyncio.Semaphore(
             max_concurrent_compressions
         )
+        self._buffer = BytesIO()  # Reusable BytesIO buffer
 
     async def compress_image(self, image_data: bytes) -> bytes:
         """Compress the image asynchronously."""
@@ -40,7 +40,7 @@ class ImageCompressor:
         )
 
     def _compress_image_logic(self, image_data: bytes) -> bytes:
-        """Perform image compression by reducing quality necessary."""
+        """Perform image compression by reducing quality if necessary."""
         image = Image.open(BytesIO(image_data))
         initial_size = len(image_data)
         quality = self._calculate_initial_quality(initial_size)
@@ -60,10 +60,10 @@ class ImageCompressor:
 
     def _apply_compression(self, image: Image.Image, quality: int) -> bytes:
         """Apply compression by reducing image quality."""
-        buffer = BytesIO()
-        buffer.seek(0)
-        image.save(buffer, format="JPEG", quality=quality)
-        compressed_image_data = buffer.getvalue()
+        self._buffer.seek(0)
+        self._buffer.truncate(0)
+        image.save(self._buffer, format="JPEG", quality=quality)
+        compressed_image_data = self._buffer.getvalue()
 
         initial_size = len(image.tobytes())
         _LOGGER.info(
@@ -97,10 +97,10 @@ class ImageCompressor:
         resized_image = image.resize(
             (new_width, new_height), Image.Resampling.LANCZOS
         )
-        buffer = BytesIO()
-        buffer.seek(0)
-        resized_image.save(buffer, format="JPEG", quality=quality)
-        resized_image_data = buffer.getvalue()
+        self._buffer.seek(0)
+        self._buffer.truncate(0)
+        resized_image.save(self._buffer, format="JPEG", quality=quality)
+        resized_image_data = self._buffer.getvalue()
 
         _LOGGER.info(
             "Final resized image size: %d bytes", len(resized_image_data)
