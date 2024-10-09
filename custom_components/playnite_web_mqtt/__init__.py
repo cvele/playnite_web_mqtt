@@ -19,12 +19,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.error("No topic base provided in the config entry.")
         return False
 
-    device = await _create_device(hass, entry, topic_base)
-    await _initialize_entry_data(hass, entry, device, topic_base)
-    await _forward_entry_setups(hass, entry)
-    await _schedule_library_request(
-        hass, mqtt_handler=hass.data[DOMAIN][entry.entry_id]["mqtt_handler"]
+    device, mqtt_handler = await _setup_device_and_data(
+        hass, entry, topic_base
     )
+
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setups(
+            entry, ["switch", "button"]
+        )
+    )
+
+    await _schedule_library_request(hass, mqtt_handler)
 
     connection_topic = f"{topic_base}/connection"
     await async_subscribe(
@@ -38,24 +43,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def _create_device(
+async def _setup_device_and_data(
     hass: HomeAssistant, entry: ConfigEntry, topic_base: str
 ):
-    """Create a device in Home Assistant's device registry."""
+    """Set up device and initialize data."""
     device_registry = dr.async_get(hass)
-    return device_registry.async_get_or_create(
+    device = device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, topic_base)},
         name=make_human_friendly(topic_base),
         manufacturer="Playnite Web",
         model="Playnite Web MQTT",
     )
-
-
-async def _initialize_entry_data(
-    hass: HomeAssistant, entry: ConfigEntry, device, topic_base: str
-):
-    """Initialize data for the config entry."""
 
     max_image_size = entry.data.get("max_image_size", 14500)
     min_quality = entry.data.get("min_quality", 60)
@@ -79,14 +78,7 @@ async def _initialize_entry_data(
         "switches": {},
     }
 
-
-async def _forward_entry_setups(hass: HomeAssistant, entry: ConfigEntry):
-    """Forward the config entries to appropriate components."""
-    hass.async_create_task(
-        hass.config_entries.async_forward_entry_setups(
-            entry, ["switch", "button"]
-        )
-    )
+    return device, mqtt_handler
 
 
 async def _schedule_library_request(
