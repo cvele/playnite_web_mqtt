@@ -95,7 +95,7 @@ class ImageCompressor:
         )
 
         resized_image = image.resize(
-            (new_width, new_height), Image.Resampling.LANCZOS
+            (new_width, new_height), Image.Resampling.BILINEAR
         )
         self._buffer.seek(0)
         self._buffer.truncate(0)
