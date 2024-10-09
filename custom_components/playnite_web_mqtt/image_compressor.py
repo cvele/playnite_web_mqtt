@@ -30,7 +30,10 @@ class ImageCompressor:
         self._buffer = BytesIO()  # Reusable BytesIO buffer
 
     async def compress_image(self, image_data: bytes) -> bytes:
-        """Compress the image asynchronously by reducing quality or resizing if necessary."""
+        """
+        Compress the image async by reducing
+        quality or resizing if necessary.
+        """
         if len(image_data) <= self.max_size:
             return image_data
 
