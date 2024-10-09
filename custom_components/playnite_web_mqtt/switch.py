@@ -1,6 +1,5 @@
 import logging
 import json
-from io import BytesIO
 import base64
 from collections import defaultdict
 import asyncio
@@ -75,6 +74,8 @@ async def handle_game_state_update(hass, msg, config_entry):
             e,
             msg.payload,
         )
+    except KeyError as e:
+        _LOGGER.error("KeyError when accessing game state data: %s", e)
 
 
 async def handle_mqtt_message(hass, msg, config_entry, async_add_entities):
@@ -190,6 +191,9 @@ class PlayniteGameSwitch(SwitchEntity):
         self._image_data = None
         self._compressed_image_data = None
         self._encoded_image = None
+        self.image_compressor = hass.data[DOMAIN][config_entry.entry_id][
+            "image_compressor"
+        ]
 
     def update_state(self, game_state):
         """Update the switch state based on game state."""
@@ -270,7 +274,9 @@ class PlayniteGameSwitch(SwitchEntity):
                     # semaphore to control the # of concurrent compressions
                     async with compression_semaphore:
                         self._compressed_image_data = (
-                            await self.compress_image(self._image_data)
+                            await self.image_compressor.compress_image(
+                                self._image_data
+                            )
                         )
                 self.schedule_update_ha_state()
             else:
@@ -279,70 +285,3 @@ class PlayniteGameSwitch(SwitchEntity):
                 )
         except Exception as e:
             _LOGGER.error("Failed to handle cover image: %s", e)
-
-    async def compress_image(self, image_data):
-        """Compress the image by reducing quality, dimensions if needed."""
-        if len(image_data) <= 14500:
-            return image_data
-
-        try:
-            loop = self.hass.loop
-            # Use the semaphore to limit the number of concurrent compressions
-            return await loop.run_in_executor(
-                None, self._compress_image_logic, image_data
-            )
-        except Exception as e:
-            _LOGGER.error("Failed to compress image: %s", e)
-            return image_data
-
-    def _compress_image_logic(self, image_data):
-        # sourcery skip: extract-duplicate-method
-        """Optimized image compression logic based on initial size estimate."""
-        from PIL import Image, Resampling  # type: ignore
-
-        max_size_bytes = 14500
-        image = Image.open(BytesIO(image_data))
-        initial_size = len(image_data)
-        quality = 95
-
-        if initial_size > max_size_bytes:
-            minimum_quality = 60
-            compression_factor = max_size_bytes / initial_size
-            estimated_quality = int(quality * compression_factor)
-            quality = max(estimated_quality, minimum_quality)
-
-        buffer = BytesIO()
-        buffer.seek(0)
-        image.save(buffer, format="JPEG", quality=quality)
-        compressed_image_data = buffer.getvalue()
-
-        _LOGGER.info(
-            "Initial compression applied at quality %d: %d bytes",
-            quality,
-            len(compressed_image_data),
-        )
-
-        if len(compressed_image_data) <= max_size_bytes:
-            return compressed_image_data
-
-        width, height = image.size
-        resize_factor = (max_size_bytes / len(compressed_image_data)) ** 0.5
-        new_width = int(width * resize_factor)
-        new_height = int(height * resize_factor)
-
-        _LOGGER.info(
-            "Resizing image from %dx%d to %dx%d",
-            width,
-            height,
-            new_width,
-            new_height,
-        )
-
-        image = image.resize((new_width, new_height), Resampling.LANCZOS)
-        buffer.seek(0)
-        image.save(buffer, format="JPEG", quality=quality)
-        compressed_image_data = buffer.getvalue()
-
-        _LOGGER.info("Final image size: %d bytes", len(compressed_image_data))
-
-        return compressed_image_data

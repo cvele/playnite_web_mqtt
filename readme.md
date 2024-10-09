@@ -1,3 +1,4 @@
+
 # Playnite Web MQTT Integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/)
@@ -16,6 +17,8 @@ This custom Home Assistant integration allows you to monitor and control your Pl
     - [HACS Installation](#hacs-installation)
   - [Configuration](#configuration)
     - [Configuration Options](#configuration-options)
+      - [MQTT Settings](#mqtt-settings)
+      - [Image Settings](#image-settings)
   - [Supported Entities](#supported-entities)
   - [Example MQTT Topic Structure](#example-mqtt-topic-structure)
   - [Troubleshooting](#troubleshooting)
@@ -65,10 +68,25 @@ The integration will subscribe to Playnite's MQTT topics, creating game switches
 
 ### Configuration Options
 
+#### MQTT Settings
+
 - **MQTT Broker**: The address of your MQTT broker.
 - **MQTT Port**: The port for your MQTT broker (default is `1883`).
 - **MQTT Username/Password**: (Optional) Credentials for your MQTT broker.
 - **Topic Base**: The MQTT topic base, usually in the format `playnite/playniteweb_<your-pc-name>`.
+
+#### Image Settings
+
+The purpose of the image settings (max_image_size, min_quality, and initial_quality) is to ensure that cover images are small enough to fit within the size limits imposed by the platform while maintaining a balance between quality and file size. Here's a breakdown:
+
+- **max_image_size**: The maximum size of images in bytes (default: `14500`).
+  The maximum size (in bytes) of images that can be processed and displayed. Each entity in Home Assistant can have a maximum size for associated images to prevent large files from causing performance issues. This setting ensures that the cover images are reduced in size to fit within these limits, which helps prevent errors or slowdowns when loading the images.
+
+- **min_quality**: The minimum JPEG quality to use when sending images (default: `60`).
+  Defines the minimum JPEG quality that the integration will use when compressing cover images. If the image needs to be compressed to reduce its size, this setting specifies the lowest quality threshold to maintain a reasonable image appearance. It prevents the image from becoming too pixelated or degraded during compression.
+
+- **initial_quality**: The initial JPEG quality to try before adjusting downwards (default: `95`).
+  This is the starting quality for JPEG compression before adjusting downwards if needed. When an image is initially processed, it is compressed at this quality level, and then further adjustments may be made if the resulting image size exceeds the maximum allowed (max_image_size). This ensures that compression starts at a higher quality and progressively reduces until the image fits.
 
 ## Supported Entities
 
