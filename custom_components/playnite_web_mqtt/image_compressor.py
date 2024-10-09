@@ -30,25 +30,24 @@ class ImageCompressor:
         self._buffer = BytesIO()  # Reusable BytesIO buffer
 
     async def compress_image(self, image_data: bytes) -> bytes:
-        """Compress the image asynchronously."""
+        """Compress the image asynchronously by reducing quality or resizing if necessary."""
         if len(image_data) <= self.max_size:
             return image_data
 
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(
-            None, self._compress_image_logic, image_data
-        )
-
-    def _compress_image_logic(self, image_data: bytes) -> bytes:
-        """Perform image compression by reducing quality if necessary."""
         image = Image.open(BytesIO(image_data))
         initial_size = len(image_data)
         quality = self._calculate_initial_quality(initial_size)
-        compressed_image_data = self._apply_compression(image, quality)
+        compressed_image_data = await asyncio.get_event_loop().run_in_executor(
+            None, self._apply_compression, image, quality
+        )
 
         # If compression based on quality is not enough, resize the image
         if len(compressed_image_data) > self.max_size:
-            compressed_image_data = self._resize_image(image, quality)
+            compressed_image_data = (
+                await asyncio.get_event_loop().run_in_executor(
+                    None, self._resize_image, image, quality
+                )
+            )
 
         return compressed_image_data
 
