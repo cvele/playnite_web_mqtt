@@ -56,11 +56,26 @@ async def _initialize_entry_data(
     hass: HomeAssistant, entry: ConfigEntry, device, topic_base: str
 ):
     """Initialize data for the config entry."""
+
+    max_image_size = entry.data.get("max_image_size", 14500)
+    min_quality = entry.data.get("min_quality", 60)
+    initial_quality = entry.data.get("initial_quality", 95)
+    max_concurrent_compressions = entry.data.get(
+        "max_concurrent_compressions", 5
+    )
+
     mqtt_handler = MqttHandler(hass, topic_base)
+    image_compressor = ImageCompressor(
+        max_size=max_image_size,
+        min_quality=min_quality,
+        initial_quality=initial_quality,
+        max_concurrent_compressions=max_concurrent_compressions,
+    )
+
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "device": device,
         "mqtt_handler": mqtt_handler,
-        "image_compressor": ImageCompressor(),
+        "image_compressor": image_compressor,
         "switches": {},
     }
 

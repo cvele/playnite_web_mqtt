@@ -14,7 +14,6 @@ class PlayniteMQTTConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors = {}
         if user_input is not None:
-            # Validate user input here if needed
             return self.async_create_entry(
                 title="Playnite Web MQTT", data=user_input
             )
@@ -74,6 +73,18 @@ class PlayniteMQTTOptionsFlow(config_entries.OptionsFlow):
                         "topic_base", "playnite"
                     ),
                 ): str,
+                vol.Optional("max_image_size", default=14500): vol.All(
+                    vol.Coerce(int), vol.Range(min=1000)
+                ),
+                vol.Optional("min_quality", default=60): vol.All(
+                    vol.Coerce(int), vol.Range(min=10, max=100)
+                ),
+                vol.Optional("initial_quality", default=95): vol.All(
+                    vol.Coerce(int), vol.Range(min=10, max=100)
+                ),
+                vol.Optional(
+                    "max_concurrent_compressions", default=5
+                ): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
             }
         )
 

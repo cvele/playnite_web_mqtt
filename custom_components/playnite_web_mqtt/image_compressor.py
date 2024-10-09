@@ -5,19 +5,29 @@ import asyncio
 
 _LOGGER = logging.getLogger(__name__)
 
-MAX_IMAGE_SIZE_BYTES = 14500
-MIN_QUALITY = 60
-INITIAL_QUALITY = 95
-MAX_CONCURRENT_COMPRESSIONS = 5
-
-compression_semaphore = asyncio.Semaphore(MAX_CONCURRENT_COMPRESSIONS)
+# Default values
+DEFAULT_MAX_IMAGE_SIZE_BYTES = 14500
+DEFAULT_MIN_QUALITY = 60
+DEFAULT_INITIAL_QUALITY = 95
+DEFAULT_MAX_CONCURRENT_COMPRESSIONS = 5
 
 
 class ImageCompressor:
     """Utility class for compressing images asynchronously."""
 
-    def __init__(self, max_size=MAX_IMAGE_SIZE_BYTES):
+    def __init__(
+        self,
+        max_size=DEFAULT_MAX_IMAGE_SIZE_BYTES,
+        min_quality=DEFAULT_MIN_QUALITY,
+        initial_quality=DEFAULT_INITIAL_QUALITY,
+        max_concurrent_compressions=DEFAULT_MAX_CONCURRENT_COMPRESSIONS,
+    ):
         self.max_size = max_size
+        self.min_quality = min_quality
+        self.initial_quality = initial_quality
+        self.compression_semaphore = asyncio.Semaphore(
+            max_concurrent_compressions
+        )
 
     async def compress_image(self, image_data: bytes) -> bytes:
         """Compress the image asynchronously."""
@@ -45,8 +55,8 @@ class ImageCompressor:
     def _calculate_initial_quality(self, initial_size: int) -> int:
         """Calculate the initial quality factor based on image size."""
         compression_factor = self.max_size / initial_size
-        estimated_quality = int(INITIAL_QUALITY * compression_factor)
-        return max(estimated_quality, MIN_QUALITY)
+        estimated_quality = int(self.initial_quality * compression_factor)
+        return max(estimated_quality, self.min_quality)
 
     def _apply_compression(self, image: Image.Image, quality: int) -> bytes:
         """Apply compression by reducing image quality."""
