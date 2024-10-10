@@ -78,6 +78,26 @@ jobs:
           git add VERSION
           git commit -m "Release version ${{ env.new_version }}"
 
+          - name: Set up Ruby
+          uses: ruby/setup-ruby@v1
+          with:
+            ruby-version: '3.0' # or any preferred version
+
+      - name: Install GitHub Changelog Generator
+        run: gem install github_changelog_generator
+
+      - name: Generate Changelog
+        run: |
+          github_changelog_generator \
+            -u cvele \
+            -p playnite_web_mqtt \
+            --since-tag $(git describe --tags --abbrev=0) \
+            --output CHANGELOG.md
+          git add CHANGELOG.md
+          git commit -m "CHANGELOG.md ${{ env.new_version }}"
+        env:
+          CHANGELOG_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Push new branch
         run: |
           git push origin release/${{ env.new_version }}
@@ -85,8 +105,8 @@ jobs:
       - name: Create pull request using GitHub CLI
         run: |
           gh pr create -B main -H release/${{ env.new_version }} \
-            --title 'Release ${{ env.new_version }}' \
-            --body 'This PR includes the new version file and changes.'
+            --title '${{ env.new_version }} @sourcery-ai' \
+            --body '@sourcery-ai summary'
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
