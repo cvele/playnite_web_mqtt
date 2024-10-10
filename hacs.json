@@ -1,6 +1,5 @@
 {
   "name": "Playnite Web MQTT",
   "content_in_root": false,
-  "homeassistant": "2024.10.1",
-  "issue_tracker": "https://github.com/cvele/playnite_web_mqtt/issues"
+  "homeassistant": "2024.10.1"
 }

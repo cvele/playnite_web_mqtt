@@ -3,7 +3,7 @@ name: Auto Create Tag & Release
 on:
   pull_request:
     branches:
-      - main
+      - release
     types:
       - closed
 
@@ -13,12 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check if PR is from a release/v*.*.* branch
+      - name: Check if PR is from a r/v*.*.* branch
         id: check_branch
         run: |
           PR_BRANCH=$(echo "${{ github.event.pull_request.head.ref }}")
-          if [[ "$PR_BRANCH" =~ ^release/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          exit 0
+          if [[ "$PR_BRANCH" =~ ^r/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "PR_BRANCH=$PR_BRANCH" >> $GITHUB_ENV
+            exit 0
           fi
           exit 1
 
@@ -35,6 +36,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
         with:
+          ref: "release"
           fetch-depth: 0
 
       - name: Read version from VERSION file
@@ -47,6 +49,14 @@ jobs:
           else
             echo "VERSION file not found, skipping."
             exit 1
+          fi
+
+      - name: Check if tag already exists
+        run: |
+          git fetch --tags
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+              echo "Tag $VERSION already exists. Exiting."
+              exit 1
           fi
 
       - name: Read changelog from CHANGELOG.md

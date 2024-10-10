@@ -58,7 +58,7 @@ jobs:
 
       - name: Create a new branch
         run: |
-          git checkout -b release/${{ env.new_version }}
+          git checkout -b r/${{ env.new_version }}
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v6
@@ -100,11 +100,11 @@ jobs:
 
       - name: Push new branch
         run: |
-          git push origin release/${{ env.new_version }}
+          git push origin r/${{ env.new_version }}
 
       - name: Create pull request using GitHub CLI
         run: |
-          gh pr create -B main -H release/${{ env.new_version }} \
+          gh pr create -B release -H r/${{ env.new_version }} \
             --title '${{ env.new_version }} @sourcery-ai' \
             --body '@sourcery-ai summary'
         env:
@@ -112,14 +112,14 @@ jobs:
 
       - name: Enable auto-merge for the pull request
         run: |
-          pr_number=$(gh pr list --head "release/${{ env.new_version }}" --json number --jq '.[0].number')
+          pr_number=$(gh pr list --head "r/${{ env.new_version }}" --json number --jq '.[0].number')
           gh pr merge $pr_number --auto --squash
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
       - name: Add comment to pull request
         run: |
-          pr_number=$(gh pr list --head "release/${{ env.new_version }}" --json number --jq '.[0].number')
+          pr_number=$(gh pr list --head "r/${{ env.new_version }}" --json number --jq '.[0].number')
           gh pr comment $pr_number --body "@sourcery-ai review"
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
