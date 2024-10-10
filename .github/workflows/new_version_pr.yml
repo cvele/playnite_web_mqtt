@@ -78,10 +78,10 @@ jobs:
           git add VERSION
           git commit -m "Release version ${{ env.new_version }}"
 
-          - name: Set up Ruby
-          uses: ruby/setup-ruby@v1
-          with:
-            ruby-version: '3.0' # or any preferred version
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.0"
 
       - name: Install GitHub Changelog Generator
         run: gem install github_changelog_generator
