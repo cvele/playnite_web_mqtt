@@ -18,16 +18,11 @@ jobs:
         run: |
           PR_BRANCH=$(echo "${{ github.event.pull_request.head.ref }}")
           if [[ "$PR_BRANCH" =~ ^release/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "PR is from a release branch."
-          echo "is_release_branch=true" >> $GITHUB_ENV
-          else
-          echo "PR is NOT from a release branch, skipping tag creation."
-          echo "is_release_branch=false" >> $GITHUB_ENV
           exit 0
           fi
+          exit 1
 
       - name: Import GPG key
-        if: env.is_release_branch == 'true'
         uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
@@ -38,13 +33,11 @@ jobs:
           git_config_global: true
 
       - name: Checkout the repository
-        if: env.is_release_branch == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Read version from VERSION file
-        if: env.is_release_branch == 'true'
         id: read_version
         run: |
           if [ -f "VERSION" ]; then
@@ -56,21 +49,31 @@ jobs:
             exit 1
           fi
 
+      - name: Read changelog from CHANGELOG.md
+        id: read_changelog
+        run: |
+          if [ -f "CHANGELOG.md" ]; then
+            CHANGELOG=$(cat CHANGELOG)
+            echo "CHANGELOG=$CHANGELOG" >> $GITHUB_ENV
+            echo "CHANGELOG found: $CHANGELOG"
+          else
+            echo "CHANGELOG file not found, skipping."
+            exit 1
+          fi
+
       - name: Create and push tag
-        if: env.is_release_branch == 'true'
+        id: create_tag
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git tag -a ${{ env.VERSION }} -m "${{ env.VERSION }}" --sign
           git push origin --tags
 
-      - uses: release-drafter/release-drafter@v5
-        if: env.is_release_branch == 'true'
-        with:
-          disable-autolabeler: true
-          name: ${{ env.VERSION }}
-          tag: ${{ env.VERSION }}
-          version: ${{ env.VERSION }}
-          publish: true
+      - name: Create GitHub Release using GitHub CLI
+        run: |
+          gh release create ${{ env.VERSION }} \
+            --title "${{ env.VERSION }}" \
+            --notes-file CHANGELOG.md \
+            --target ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
