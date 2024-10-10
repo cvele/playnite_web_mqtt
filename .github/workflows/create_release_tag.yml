@@ -86,6 +86,6 @@ jobs:
           gh release create ${{ env.VERSION }} \
             --title "${{ env.VERSION }}" \
             --notes-file CHANGELOG.md \
-            --target ${{ env.VERSION }}
+            --target release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
