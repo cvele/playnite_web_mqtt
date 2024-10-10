@@ -1,6 +1,9 @@
 name: HACS Action
 
 on:
+  pull_request:
+    branches:
+      - "release"
   schedule:
     - cron: "0 0 * * *"
 
