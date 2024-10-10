@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check if PR is from a release/v*.*.* branch
+      - name: Check if PR is from a r/v*.*.* branch
         id: check_branch
         run: |
           PR_BRANCH=$(echo "${{ github.event.pull_request.head.ref }}")
-          if [[ "$PR_BRANCH" =~ ^release/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ "$PR_BRANCH" =~ ^r/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "PR_BRANCH=$PR_BRANCH" >> $GITHUB_ENV
             exit 0
           fi
