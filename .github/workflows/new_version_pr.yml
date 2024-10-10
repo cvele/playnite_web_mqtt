@@ -104,7 +104,7 @@ jobs:
 
       - name: Create pull request using GitHub CLI
         run: |
-          gh pr create -B main -H release/${{ env.new_version }} \
+          gh pr create -B release -H release/${{ env.new_version }} \
             --title '${{ env.new_version }} @sourcery-ai' \
             --body '@sourcery-ai summary'
         env:
