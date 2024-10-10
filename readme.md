@@ -2,6 +2,9 @@
 # Playnite Web MQTT Integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/)
+[![HACS](https://github.com/cvele/playnite_web_mqtt/actions/workflows/validate_hacs.yml/badge.svg)](https://github.com/cvele/playnite_web_mqtt/actions/workflows/validate_hacs.yml)
+[![Hassfest](https://github.com/cvele/playnite_web_mqtt/actions/workflows/validate_hassfest.yml/badge.svg)](https://github.com/cvele/playnite_web_mqtt/actions/workflows/validate_hassfest.yml)
+[![CI](https://github.com/cvele/playnite_web_mqtt/actions/workflows/ci-checks.yml/badge.svg)](https://github.com/cvele/playnite_web_mqtt/actions/workflows/ci-checks.yml)
 
 > ⚠️ **Warning**: This project is still in development. Use at your own risk!
 
