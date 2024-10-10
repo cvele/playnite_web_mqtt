@@ -62,10 +62,12 @@ jobs:
       - name: Read changelog from CHANGELOG.md
         id: read_changelog
         run: |
-          if [ -f "CHANGELOG.md" ]; then
-            CHANGELOG=$(cat CHANGELOG)
-            echo "CHANGELOG=$CHANGELOG" >> $GITHUB_ENV
-            echo "CHANGELOG found: $CHANGELOG"
+          if [[ -f "CHANGELOG.md" ]]; then
+            CHANGELOG=$(cat CHANGELOG.md)
+            echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+            echo "$CHANGELOG" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+            echo "CHANGELOG found."
           else
             echo "CHANGELOG file not found, skipping."
             exit 1
@@ -84,6 +86,6 @@ jobs:
           gh release create ${{ env.VERSION }} \
             --title "${{ env.VERSION }}" \
             --notes-file CHANGELOG.md \
-            --target ${{ env.VERSION }}
+            --target release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
