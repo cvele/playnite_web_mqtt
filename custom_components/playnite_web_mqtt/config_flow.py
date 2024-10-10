@@ -1,6 +1,7 @@
 import voluptuous as vol
-from homeassistant.core import callback
+
 from homeassistant import config_entries
+from homeassistant.core import callback
 
 from . import DOMAIN
 
@@ -44,7 +45,7 @@ class PlayniteMQTTConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class PlayniteMQTTOptionsFlow(config_entries.OptionsFlow):
     """Handle an options flow for Playnite Web MQTT."""
 
-    def __init__(self, config_entry):
+    def __init__(self, config_entry) -> None:
         """Initialize options flow."""
         self.config_entry = config_entry
 
