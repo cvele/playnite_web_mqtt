@@ -20,7 +20,14 @@ class ImageCompressor:
         min_quality=DEFAULT_MIN_QUALITY,
         initial_quality=DEFAULT_INITIAL_QUALITY,
         max_concurrent_compressions=DEFAULT_MAX_CONCURRENT_COMPRESSIONS,
-    ):
+    ) -> None:
+        """Initialize the ImageCompressor.
+
+        :param max_size: Maximum allowed image size in bytes.
+        :param min_quality: Minimum quality for image compression.
+        :param initial_quality: Initial quality for image compression.
+        :param max_concurrent_compressions: Max # of concurrent compressions.
+        """
         self.max_size = max_size
         self.min_quality = min_quality
         self.initial_quality = initial_quality
@@ -30,10 +37,7 @@ class ImageCompressor:
         self._buffer = BytesIO()  # Reusable BytesIO buffer
 
     async def compress_image(self, image_data: bytes) -> bytes:
-        """
-        Compress the image async by reducing
-        quality or resizing if necessary.
-        """
+        """Compress the image async by reducing quality or resizing."""
         if len(image_data) <= self.max_size:
             return image_data
 
@@ -64,6 +68,9 @@ class ImageCompressor:
         """Apply compression by reducing image quality."""
         self._buffer.seek(0)
         self._buffer.truncate(0)
+
+        if image.mode == "RGBA":
+            image = image.convert("RGB")
         image.save(self._buffer, format="JPEG", quality=quality)
         compressed_image_data = self._buffer.getvalue()
 
@@ -99,6 +106,9 @@ class ImageCompressor:
         resized_image = image.resize(
             (new_width, new_height), Image.Resampling.BILINEAR
         )
+        if resized_image.mode == "RGBA":
+            resized_image = resized_image.convert("RGB")
+
         self._buffer.seek(0)
         self._buffer.truncate(0)
         resized_image.save(self._buffer, format="JPEG", quality=quality)
