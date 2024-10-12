@@ -8,13 +8,11 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.storage import Store
+from .const import DOMAIN, STORAGE_VERSION, MAX_CONCURRENT_COMPRESSIONS
 
-MAX_CONCURRENT_COMPRESSIONS = 5
 compression_semaphore = asyncio.Semaphore(MAX_CONCURRENT_COMPRESSIONS)
 COVER_IMAGE_QUEUE: defaultdict[str, list[str]] = defaultdict(list)
-DOMAIN = "playnite_web_mqtt"
 _LOGGER = logging.getLogger(__name__)
-STORAGE_VERSION = 1
 
 
 async def async_added_to_hass(self):

@@ -6,9 +6,9 @@ from homeassistant.components.mqtt import async_subscribe
 from .lib import make_human_friendly
 from .mqtt_handler import MqttHandler
 from .image_compressor import ImageCompressor
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
-DOMAIN = "playnite_web_mqtt"
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

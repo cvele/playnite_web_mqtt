@@ -4,10 +4,9 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
+from .const import DOMAIN, STORAGE_VERSION
 
-DOMAIN = "playnite_web_mqtt"
 _LOGGER = logging.getLogger(__name__)
-STORAGE_VERSION = 1
 
 
 async def async_setup_entry(

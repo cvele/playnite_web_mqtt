@@ -2,8 +2,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.core import callback
-
-from . import DOMAIN
+from .const import DOMAIN
 
 
 class PlayniteMQTTConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):

@@ -4,9 +4,9 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.core import HomeAssistant
 
 from .mqtt_handler import MqttHandler
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
-DOMAIN = "playnite_web_mqtt"
 
 
 async def async_setup_entry(
