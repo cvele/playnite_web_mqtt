@@ -1,14 +1,16 @@
 import asyncio
 import base64
-from collections import defaultdict
 import json
 import logging
+from collections import defaultdict
 
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.storage import Store
-from .const import DOMAIN, STORAGE_VERSION, MAX_CONCURRENT_COMPRESSIONS
+
+from .const import DOMAIN, MAX_CONCURRENT_COMPRESSIONS, STORAGE_VERSION
 from .script_executor import ScriptExecutor
 
 compression_semaphore = asyncio.Semaphore(MAX_CONCURRENT_COMPRESSIONS)
@@ -17,11 +19,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_added_to_hass(self):
-    """Run when the entity is added to hass."""
+    """Run when the entity is added to Home Assistant."""
+    await super().async_added_to_hass()
     _LOGGER.info("Entity %s has been added to Home Assistant", self._name)
-    if self.hass:
-        # Now safe to interact with hass and schedule updates
-        self.schedule_update_ha_state()
+    self._async_update_state()
 
 
 async def async_setup_entry(
@@ -238,16 +239,18 @@ class PlayniteGameSwitch(SwitchEntity):
         }
         self.script_executor = ScriptExecutor(hass, script_stores)
 
-    def update_state(self, game_state):
-        """Update the switch state based on game state."""
-        self._state = game_state in ["started", "starting"]
-        if self.hass and self.hass.loop:
-            self.schedule_update_ha_state()
+    @callback
+    def _async_update_state(self):
+        """Update the entity state."""
+        if self.hass.is_running:
+            self.async_write_ha_state()
         else:
-            _LOGGER.error(
-                "Cannot update state, hass is not available for switch %s",
-                self._name,
-            )
+            self.async_schedule_update_ha_state()
+
+    def update_state(self, game_state):
+        """Update the switch state based on the game state."""
+        self._state = game_state in ["started", "starting"]
+        self._async_update_state()
 
     @property
     def name(self):
