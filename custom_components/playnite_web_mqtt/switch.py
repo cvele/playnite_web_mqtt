@@ -264,8 +264,7 @@ class PlayniteGameSwitch(SwitchEntity):
 
     async def run_script(self, script_name):
         """Run the selected script from storage if it exists."""
-        store = self.script_stores.get(script_name)
-        if store:
+        if store := self.script_stores.get(script_name):
             stored_data = await store.async_load()
             script_entity_id = (
                 stored_data.get("current_option") if stored_data else None
