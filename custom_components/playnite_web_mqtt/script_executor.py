@@ -42,7 +42,6 @@ class ScriptExecutor:
 
             _LOGGER.info("Executing script: %s", script_entity_id)
 
-            # Timeout handling and retry mechanism (optional)
             await self._execute_script(script_entity_id)
 
         except KeyError as ke:
@@ -96,4 +95,4 @@ class ScriptExecutor:
                         script_entity_id,
                         retries,
                     )
-                    raise  # Re-raise after final failure
+                    raise
