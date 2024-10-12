@@ -74,11 +74,10 @@ async def handle_game_state_update(hass: HomeAssistant, msg, config_entry):
             _LOGGER.error("Game state update missing game ID: %s", payload)
             return
 
-        if not (
-            switch := hass.data[DOMAIN][config_entry.entry_id]["switches"].get(
-                game_id
-            )
-        ):
+        switch = hass.data[DOMAIN][config_entry.entry_id]["switches"].get(
+            game_id
+        )
+        if not switch:
             _LOGGER.warning("No switch found for game ID %s", game_id)
             return
 
@@ -86,14 +85,10 @@ async def handle_game_state_update(hass: HomeAssistant, msg, config_entry):
         switch.hass = hass
         switch.update_state(game_state)
 
-    except json.JSONDecodeError as e:
+    except (json.JSONDecodeError, KeyError) as e:
         _LOGGER.error(
-            "Failed to decode game state message: %s. Message: %s",
-            e,
-            msg.payload,
+            f"Failed to handle game state message: {e}. Message: {msg.payload}"
         )
-    except KeyError as e:
-        _LOGGER.error("KeyError when accessing game state data: %s", e)
 
 
 async def handle_mqtt_message(
@@ -169,26 +164,23 @@ async def handle_game_discovery(
 
 async def handle_cover_image(hass: HomeAssistant, msg, config_entry):
     """Handle the cover image received from the MQTT topic."""
-    # Extract game ID from the correct position in the topic path
-    # Topic format:
-    # playnite/playniteweb_<pc>/entity/release/<game-id>/asset/<whatever-here>/type
     topic_parts = msg.topic.split("/")
 
-    if len(topic_parts) >= 6:
-        game_id = topic_parts[4]
-        if switch := hass.data[DOMAIN][config_entry.entry_id]["switches"].get(
-            game_id
-        ):
-            switch.hass = hass
-            await switch.handle_cover_image(msg)
-        else:
-            _LOGGER.info(
-                "No switch found game ID %s to update cover. Queueing",
-                game_id,
-            )
-            COVER_IMAGE_QUEUE[game_id].append(msg)
-    else:
+    if len(topic_parts) < 6:
         _LOGGER.warning("Unexpected topic format: %s", msg.topic)
+        return
+
+    game_id = topic_parts[4]
+    if switch := hass.data[DOMAIN][config_entry.entry_id]["switches"].get(
+        game_id
+    ):
+        switch.hass = hass
+        return await switch.handle_cover_image(msg)
+
+    _LOGGER.info(
+        "No switch found for game ID %s to update cover. Queueing", game_id
+    )
+    COVER_IMAGE_QUEUE[game_id].append(msg)
 
 
 class PlayniteGameSwitch(SwitchEntity):
