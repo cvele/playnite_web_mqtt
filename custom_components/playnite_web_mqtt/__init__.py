@@ -16,7 +16,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     topic_base = entry.data.get("topic_base")
 
     if not topic_base:
-        _LOGGER.error("No topic base provided in the config entry.")
+        _LOGGER.error("No topic base provided in the config entry")
         return False
 
     device, mqtt_handler = await _setup_device_and_data(
@@ -25,7 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setups(
-            entry, ["switch", "button"]
+            entry, ["switch", "button", "select"]
         )
     )
 
@@ -87,11 +87,11 @@ async def _schedule_library_request(
     """Schedule the sending of a library request based on HA running state."""
     if hass.is_running:
         _LOGGER.info(
-            "HASS is already running, sending library request immediately."
+            "HASS is already running, sending library request immediately"
         )
         await mqtt_handler.send_library_request()
     else:
-        _LOGGER.info("HASS not fully started, scheduling library request.")
+        _LOGGER.info("HASS not fully started, scheduling library request")
 
         def schedule_library_request():
             hass.loop.call_soon_threadsafe(
