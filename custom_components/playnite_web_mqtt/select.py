@@ -100,11 +100,20 @@ class GameScriptSelect(SelectEntity):
         return [entity.entity_id for entity in scripts]
 
     async def async_select_option(self, option: str) -> None:
-        """Handle the selection of a script."""
+        """Handle the selection of a script with validation."""
+        scripts = await self.hass.async_add_executor_job(
+            self.get_script_options
+        )
+
+        if option not in scripts:
+            _LOGGER.error(
+                "Selected script '%s' does not exist in Home Assistant", option
+            )
+            raise ValueError(f"Selected script '{option}' does not exist")
+
         _LOGGER.info("Selected script: %s for %s", option, self.script_name)
         self._current_option = option
 
-        # Save the selected option to the store
         await self._store.async_save({"current_option": self._current_option})
         self.async_write_ha_state()
 
