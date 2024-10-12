@@ -30,12 +30,12 @@ async def async_setup_entry(
 ):
     """Set up Playnite switches from a config entry."""
     mqtt_handler = hass.data[DOMAIN][config_entry.entry_id]["mqtt_handler"]
-    await mqtt_handler.subscribe_to_game_state(
-        lambda msg: hass.loop.call_soon_threadsafe(
-            hass.async_create_task,
-            handle_game_state_update(hass, msg, config_entry),
-        )
-    )
+
+    async def on_game_state_update(msg):
+        await handle_game_state_update(hass, msg, config_entry)
+
+    await mqtt_handler.subscribe_to_game_state(on_game_state_update)
+
     await setup_mqtt_subscription(
         hass,
         mqtt_handler,
