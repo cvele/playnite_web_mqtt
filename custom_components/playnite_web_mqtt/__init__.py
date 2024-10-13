@@ -2,7 +2,6 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
-from homeassistant.components.mqtt import async_subscribe
 from .lib import make_human_friendly
 from .mqtt_handler import MqttHandler
 from .image_compressor import ImageCompressor
@@ -30,14 +29,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     await _schedule_library_request(hass, mqtt_handler)
-
-    connection_topic = f"{topic_base}/connection"
-    await async_subscribe(
-        hass,
-        connection_topic,
-        lambda msg: hass.async_create_task(
-            handle_playnite_connection(hass, msg, entry.entry_id)
-        ),
+    await mqtt_handler.subscribe_to_connection(
+        handle_playnite_connection, entry.entry_id
     )
 
     return True
@@ -106,12 +99,12 @@ async def _schedule_library_request(
 async def handle_playnite_connection(hass: HomeAssistant, msg, entry_id):
     """Handle Playnite connection status updates."""
     try:
-        connection_status = msg.payload.decode("utf-8")
+        connection_status = msg.payload
         _LOGGER.debug("Playnite connection status: %s", connection_status)
 
         if connection_status == "online":
             mqtt_handler = hass.data[DOMAIN][entry_id]["mqtt_handler"]
-            _LOGGER.info("Playnite is online. Sending library request.")
+            _LOGGER.info("Playnite is online. Sending library request")
             await mqtt_handler.send_library_request()
 
     except Exception as e:
