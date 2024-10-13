@@ -1,0 +1,38 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "mqtt_broker": "MQTT Broker",
+          "mqtt_port": "MQTT Port",
+          "mqtt_username": "MQTT Korisničko ime",
+          "mqtt_password": "MQTT Lozinka",
+          "topic_base": "Osnovna MQTT Tema"
+        },
+        "title": "Konfigurišite Playnite Web MQTT",
+        "description": "Molimo unesite detalje vašeg MQTT brokera."
+      }
+    },
+    "error": {
+      "invalid_broker": "Nevažeća adresa MQTT brokera"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "mqtt_broker": "MQTT Broker",
+          "mqtt_username": "MQTT Korisničko ime",
+          "mqtt_password": "MQTT Lozinka",
+          "topic_base": "Osnovna MQTT Tema",
+          "max_image_size": "Maksimalna veličina slike (KB)",
+          "min_quality": "Minimalni kvalitet slike",
+          "initial_quality": "Početni kvalitet slike",
+          "max_concurrent_compressions": "Maksimalan broj istovremenih kompresija"
+        },
+        "title": "Konfigurišite Playnite MQTT Opcije",
+        "description": "Konfigurišite dodatne opcije za Playnite Web MQTT."
+      }
+    }
+  }
+}
