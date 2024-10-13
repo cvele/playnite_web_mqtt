@@ -1,12 +1,17 @@
 import logging
+
 from homeassistant.components.button import ButtonEntity
+from homeassistant.core import HomeAssistant
+
 from .mqtt_handler import MqttHandler
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
-DOMAIN = "playnite_web_mqtt"
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(
+    hass: HomeAssistant, config_entry, async_add_entities
+):
     """Set up PlayniteRequestLibraryButton from a config entry."""
     topic_base = config_entry.data.get("topic_base")
 
@@ -26,8 +31,13 @@ class PlayniteRequestLibraryButton(ButtonEntity):
     """Represents a button to request the game library from Playnite."""
 
     def __init__(
-        self, hass, topic_base, device, config_entry, mqtt_handler: MqttHandler
-    ):
+        self,
+        hass: HomeAssistant,
+        topic_base,
+        device,
+        config_entry,
+        mqtt_handler: MqttHandler,
+    ) -> None:
         """Initialize the button entity."""
         self.hass = hass
         self._topic_base = topic_base
@@ -49,7 +59,7 @@ class PlayniteRequestLibraryButton(ButtonEntity):
     def device_info(self):
         """Device info this entity to tie it to the PlayniteWeb instance."""
         if not self.device:
-            _LOGGER.error("Device information is not available.")
+            _LOGGER.error("Device information is not available")
             return None
 
         return {
@@ -62,7 +72,7 @@ class PlayniteRequestLibraryButton(ButtonEntity):
 
     async def async_press(self):
         """Handle the button press."""
-        _LOGGER.info("Requesting Playnite game library...")
+        _LOGGER.info("Requesting Playnite game library")
         try:
             await self.mqtt_handler.send_library_request()
         except Exception as e:

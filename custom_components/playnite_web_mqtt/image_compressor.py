@@ -26,7 +26,7 @@ class ImageCompressor:
         :param max_size: Maximum allowed image size in bytes.
         :param min_quality: Minimum quality for image compression.
         :param initial_quality: Initial quality for image compression.
-        :param max_concurrent_compressions: Max # of concurrent compressions.
+        :param max_concurrent_compressions: max num of concurrent
         """
         self.max_size = max_size
         self.min_quality = min_quality
@@ -37,7 +37,7 @@ class ImageCompressor:
         self._buffer = BytesIO()  # Reusable BytesIO buffer
 
     async def compress_image(self, image_data: bytes) -> bytes:
-        """Compress the image async by reducing quality or resizing."""
+        """Compress the image async by reducing quality or resizing"""
         if len(image_data) <= self.max_size:
             return image_data
 
