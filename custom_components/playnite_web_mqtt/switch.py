@@ -115,7 +115,6 @@ async def handle_game_discovery(
     """Handle the discovery of a game and create a switch for each game."""
     try:
         message = json.loads(msg.payload.decode("utf-8"))
-        _LOGGER.info("Game discovery message: %s", message)
     except json.JSONDecodeError:
         _LOGGER.error(
             "Failed to decode game discovery message: %s", msg.payload
@@ -150,7 +149,7 @@ async def handle_game_discovery(
 
     switch_data = {"id": game_id, "name": game_name}
     switch = PlayniteGameSwitch(
-        switch_data, hass, device, topic_base, config_entry
+        switch_data, hass, device, topic_base, config_entry, unique_id
     )
     hass.data[DOMAIN][config_entry.entry_id]["switches"][game_id] = switch
 
@@ -168,7 +167,7 @@ async def handle_cover_image(hass: HomeAssistant, msg, config_entry):
 
     if len(topic_parts) < 6:
         _LOGGER.warning("Unexpected topic format: %s", msg.topic)
-        return
+        return None
 
     game_id = topic_parts[4]
     if switch := hass.data[DOMAIN][config_entry.entry_id]["switches"].get(
@@ -181,15 +180,23 @@ async def handle_cover_image(hass: HomeAssistant, msg, config_entry):
         "No switch found for game ID %s to update cover. Queueing", game_id
     )
     COVER_IMAGE_QUEUE[game_id].append(msg)
+    return None
 
 
 class PlayniteGameSwitch(SwitchEntity):
     """Represents a Playnite game switch that controls game state."""
 
     def __init__(
-        self, game_data, hass: HomeAssistant, device, topic_base, config_entry
+        self,
+        game_data,
+        hass: HomeAssistant,
+        device,
+        topic_base,
+        config_entry,
+        unique_id,
     ) -> None:
         """Initialize the Playnite game switch."""
+        self._unique_id = unique_id
         self._name = game_data.get("name")
         self._state = False
         self._game_id = game_data.get("id")
@@ -252,7 +259,7 @@ class PlayniteGameSwitch(SwitchEntity):
     @property
     def unique_id(self):
         """Return the unique ID of the switch."""
-        return f"playnite_game_switch_{self._game_id}"
+        return self._unique_id
 
     @property
     def is_on(self):
