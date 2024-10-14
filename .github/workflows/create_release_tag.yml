@@ -104,7 +104,6 @@ jobs:
           gh release create $VERSION \
             --title "$VERSION" \
             --notes-file CHANGELOG.md \
-            --target main
-            playnite_web_mqtt-$VERSION.zip
+            --target main playnite_web_mqtt-$VERSION.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
