@@ -94,7 +94,6 @@ jobs:
           cp VERSION release_artifact/
           cp CHANGELOG.md release_artifact/
           cp readme.md release_artifact/
-          cp -r translations release_artifact/custom_components/playnite_web_mqtt/
 
           cd release_artifact
           zip -r ../playnite_web_mqtt-$VERSION.zip .
