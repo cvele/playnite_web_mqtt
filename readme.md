@@ -10,6 +10,8 @@
 
 This custom Home Assistant integration allows you to monitor and control your Playnite games via MQTT. It creates game-related entities (such as switches and buttons) to start, stop, install, and uninstall games, as well as retrieve cover images and game library data from Playnite.
 
+![Playnite Web MQTT Home Assistant Device screenshot](assets/device_screenshot.png)
+
 ## Table of Contents
 - [Playnite Web MQTT Integration](#playnite-web-mqtt-integration)
   - [Table of Contents](#table-of-contents)
@@ -32,7 +34,8 @@ This custom Home Assistant integration allows you to monitor and control your Pl
 ## Features
 
 - **Game Discovery**: Automatically create switches for games discovered via Playnite's MQTT topics.
-- **Game Control**: Control games by turning them on/off (starting/stopping games) and manage game installations (install/uninstall buttons not yet implemented).
+- **Game Control**: Control games by turning them on/off (starting/stopping games)
+- **User Defined Scripts**: Execute custom scripts before or after a game has started or stopped.
 - **Cover Images**: Automatically receive and display cover images for your games.
 - **Request Game Library**: Request the game library update from Playnite using a button entity.
 - **MQTT-based Communication**: Communicate with Playnite using MQTT to get updates about game states and covers.
@@ -68,6 +71,8 @@ You can configure the integration via the UI in Home Assistant:
    - **Topic Base**: Set this to the same topic base as configured in Playnite's MQTT Web plugin.
 
 The integration will subscribe to Playnite's MQTT topics, creating game switches and retrieving cover images.
+
+![Playnite Web MQTT Home Assistant config screenshot](assets/config_screenshot.png)
 
 ### Configuration Options
 
@@ -125,8 +130,8 @@ logger:
 
 ## Known Issues
 
-- **Unreliable Switch State**: The state of the switch is not always accurate. This is a known issue and is being worked on.
-- **Stopping Games**: Some games may not stop when the switch is turned off. This is also being addressed in future updates.
+- **Unreliable Switch State**: The state of the switch is not accurate. This is a known issue and stems from the Playnite Web plugin for Playnite. The plugin does not provide a reliable way to determine the game's state at this time. Being worked on.
+- **Stopping Games**: Games do not stop when the switch is turned off. This is a known issue and stems from lack of implementation in Playnite it self. Looking for alternative ways to resolve this. For now, workaround is to use user defined script to stop the game. (eg. via HASS.Agent)
 
 ## License
 
