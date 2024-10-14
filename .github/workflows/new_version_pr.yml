@@ -33,6 +33,8 @@ jobs:
             NEW_VERSION=${{ github.event.inputs.semver_input }}
           else
             VERSION_REGEX="^v([0-9]+)\.([0-9]+)\.([0-9]+)$"
+            
+            echo "Latest tag: $LATEST_TAG"
             if [[ $LATEST_TAG =~ $VERSION_REGEX ]]; then
               MAJOR="${BASH_REMATCH[1]}"
               MINOR="${BASH_REMATCH[2]}"
@@ -40,7 +42,7 @@ jobs:
               PATCH=$((PATCH + 1))
               NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
             else
-              echo "Latest tag does not follow semantic versioning. Using fallback v0.0.0."
+              echo "Latest tag $LATEST_TAG does not follow semantic versioning. Using fallback v0.0.0."
               NEW_VERSION="v0.0.0"
             fi
           fi
