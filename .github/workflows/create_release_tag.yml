@@ -96,7 +96,7 @@ jobs:
           cp readme.md release_artifact/
 
           cd release_artifact
-          zip -r ../playnite_web_mqtt-$VERSION.zip .
+          zip -r ../playnite_web_mqtt.zip .
           cd ..
 
       - name: Create GitHub Release using GitHub CLI
@@ -104,6 +104,6 @@ jobs:
           gh release create $VERSION \
             --title "$VERSION" \
             --notes-file CHANGELOG.md \
-            --target main playnite_web_mqtt-$VERSION.zip
+            --target main playnite_web_mqtt.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
