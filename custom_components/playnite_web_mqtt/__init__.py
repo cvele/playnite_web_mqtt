@@ -45,7 +45,7 @@ async def _setup_device_and_data(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, topic_base)},
         name=make_human_friendly(topic_base),
-        manufacturer="Playnite Web",
+        manufacturer="Vladimir Cvetić",
         model="Playnite Web MQTT",
     )
 

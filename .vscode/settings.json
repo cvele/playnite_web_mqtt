@@ -1,6 +1,6 @@
 {
   "editor.formatOnSave": true,
-  "cSpell.words": ["HACS", "LANCZOS", "sourcery"],
+  "cSpell.words": ["Cvetić", "HACS", "LANCZOS", "pwms", "sourcery"],
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.formatOnSave": true
