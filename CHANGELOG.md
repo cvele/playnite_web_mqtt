@@ -2,11 +2,11 @@
 
 ## [Unreleased](https://github.com/cvele/playnite_web_mqtt/tree/HEAD)
 
-[Full Changelog](https://github.com/cvele/playnite_web_mqtt/compare/v0.0.9...HEAD)
+[Full Changelog](https://github.com/cvele/playnite_web_mqtt/compare/v0.0.10...HEAD)
 
 **Merged pull requests:**
 
-- Refactor release artifact directory structure and update changelog ge… [\#96](https://github.com/cvele/playnite_web_mqtt/pull/96) ([cvele](https://github.com/cvele))
+- Refactor release artifact directory structure and update changelog ge… [\#98](https://github.com/cvele/playnite_web_mqtt/pull/98) ([cvele](https://github.com/cvele))
 
 
 
