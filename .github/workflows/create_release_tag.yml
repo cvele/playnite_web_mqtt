@@ -66,7 +66,7 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git tag -a ${{ env.VERSION }} -m "${{ env.VERSION }}" --sign
+          git tag -a $VERSION -m "$VERSION" --sign
           git push origin --tags
 
       - name: Clean up files for release
@@ -80,19 +80,21 @@ jobs:
 
           cp hacs.json release_artifact/
           cp LICENSE release_artifact/
+          cp VERSION release_artifact/
+          cp CHANGELOG.md release_artifact/
           cp readme.md release_artifact/
           cp -r translations release_artifact/custom_components/playnite_web_mqtt/
 
           cd release_artifact
-          zip -r ../playnite_web_mqtt-${{ env.VERSION }}.zip .
+          zip -r ../playnite_web_mqtt-$VERSION.zip .
           cd ..
 
       - name: Create GitHub Release using GitHub CLI
         run: |
-          gh release create ${{ env.VERSION }} \
-            --title "${{ env.VERSION }}" \
+          gh release create $VERSION \
+            --title "$VERSION" \
             --notes-file CHANGELOG.md \
             --target release
-            playnite_web_mqtt-${{ env.VERSION }}.zip
+            playnite_web_mqtt-$VERSION.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
