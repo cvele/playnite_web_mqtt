@@ -10,6 +10,8 @@
 
 This custom Home Assistant integration allows you to monitor and control your Playnite games via MQTT. It creates game-related entities (such as switches and buttons) to start, stop, install, and uninstall games, as well as retrieve cover images and game library data from Playnite.
 
+![Playnite Web MQTT Home Assistant Device screenshot](assets/device_screenshot.png)
+
 ## Table of Contents
 - [Playnite Web MQTT Integration](#playnite-web-mqtt-integration)
   - [Table of Contents](#table-of-contents)
@@ -37,8 +39,6 @@ This custom Home Assistant integration allows you to monitor and control your Pl
 - **Cover Images**: Automatically receive and display cover images for your games.
 - **Request Game Library**: Request the game library update from Playnite using a button entity.
 - **MQTT-based Communication**: Communicate with Playnite using MQTT to get updates about game states and covers.
-
-![Playnite Web MQTT Home Assistant Device screenshot](assets/device_screenshot.png)
 
 ## Installation
 
