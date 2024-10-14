@@ -108,6 +108,15 @@ jobs:
         env:
           CHANGELOG_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update version in manifest.json
+        run: |
+          jq --arg version "$NEW_VERSION" '.version = $version' custom_components/playnite_web_mqtt/manifest.json > temp.json && mv temp.json custom_components/playnite_web_mqtt/manifest.json
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add custom_components/playnite_web_mqtt/manifest.json
+          git commit -m "Bump manifest version to $NEW_VERSION"
+          git push
+
       - name: Push new branch
         run: |
           git push origin release/$NEW_VERSION
@@ -115,7 +124,7 @@ jobs:
       - name: Create pull request using GitHub CLI
         run: |
           gh pr create -B main -H release/$NEW_VERSION \
-            --title '$NEW_VERSION @sourcery-ai' \
+            --title '${NEW_VERSION} @sourcery-ai' \
             --body '@sourcery-ai summary @sourcery-ai review'
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}

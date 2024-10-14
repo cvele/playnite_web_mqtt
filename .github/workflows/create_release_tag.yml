@@ -83,7 +83,7 @@ jobs:
         run: |
           mkdir -p release_artifact/custom_components/playnite_web_mqtt
           mkdir -p release_artifact/custom_components/playnite_web_mqtt/translations
-          rsync -av --progress custom_components/playnite_web_mqtt release_artifact/custom_components/playnite_web_mqtt \
+          rsync -av --progress custom_components/playnite_web_mqtt release_artifact/custom_components \
             --exclude '__pycache__' \
             --exclude '*.pyc' \
             --exclude 'tests' \

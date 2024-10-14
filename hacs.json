@@ -1,5 +1,7 @@
 {
   "name": "Playnite Web MQTT",
   "content_in_root": false,
-  "homeassistant": "2024.10.1"
+  "filename": "playnite_web_mqtt.zip",
+  "homeassistant": "2024.10.1",
+  "zip_release": true
 }
