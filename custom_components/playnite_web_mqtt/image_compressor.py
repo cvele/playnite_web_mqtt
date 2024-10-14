@@ -34,23 +34,28 @@ class ImageCompressor:
         self.min_quality = min_quality
         self.initial_quality = initial_quality
         self.quality_step = DEFAULT_QUALITY_STEP
-        self.compression_semaphore = asyncio.Semaphore(max_concurrent_compressions)
-        self._buffer = BytesIO()  # Reusable BytesIO buffer
+        self.compression_semaphore = asyncio.Semaphore(
+            max_concurrent_compressions
+        )
+        self._buffer = BytesIO()
 
     async def compress_image(self, image_data: bytes) -> bytes:
-        """Compress the image async by reducing quality or resizing using WebP."""
+        """Compress the image async by reducing quality or resizing."""
         image = Image.open(BytesIO(image_data))
         initial_size = len(image_data)
         if initial_size <= self.max_size:
             _LOGGER.info(
-                "Image is already within the size limit %d bytes < %d bytes. No compression needed",
+                "Image is already within the size limit %d bytes < %d bytes. "
+                "No compression needed",
                 initial_size,
                 self.max_size,
             )
             return image_data
 
         _LOGGER.info(
-            "Initial image size: %d bytes > %d bytes", initial_size, self.max_size
+            "Initial image size: %d bytes > %d bytes",
+            initial_size,
+            self.max_size,
         )
 
         compressed_image_data = await asyncio.get_event_loop().run_in_executor(
@@ -59,18 +64,22 @@ class ImageCompressor:
 
         if len(compressed_image_data) > self.max_size:
             _LOGGER.info(
-                "Image size %d bytes still too large after quality compression, resizing",
+                "Image size %d bytes too large after quality, resize it",
                 len(compressed_image_data),
             )
-            compressed_image_data = await asyncio.get_event_loop().run_in_executor(
-                None, self._resize_and_compress, image
+            compressed_image_data = (
+                await asyncio.get_event_loop().run_in_executor(
+                    None, self._resize_and_compress, image
+                )
             )
 
-        _LOGGER.info("Accepted image size: %d bytes", len(compressed_image_data))
+        _LOGGER.info(
+            "Accepted image size: %d bytes", len(compressed_image_data)
+        )
         return compressed_image_data
 
     def _progressive_quality_compression(self, image: Image.Image) -> bytes:
-        """Reduce image quality progressively using WebP until the size constraint is met."""
+        """Reduce image quality until the size constraint is met."""
         quality = self.initial_quality
         while quality >= self.min_quality:
             compressed_image_data = self._apply_compression(image, quality)
@@ -83,7 +92,7 @@ class ImageCompressor:
                 return compressed_image_data
 
             _LOGGER.info(
-                "Image size %d bytes too large at quality %d, trying lower quality",
+                "Size %d bytes too large at quality %d, trying lower quality",
                 len(compressed_image_data),
                 quality,
             )
@@ -108,7 +117,7 @@ class ImageCompressor:
         return self._buffer.getvalue()
 
     def _resize_and_compress(self, image: Image.Image) -> bytes:
-        """Resize and compress the image to meet the size constraint using WebP."""
+        """Resize and compress the image to meet the size constraint."""
         width, height = image.size
         resize_factor = 0.75
         while True:
@@ -130,9 +139,13 @@ class ImageCompressor:
                 resized_image, self.min_quality
             )
 
-            if len(compressed_image_data) <= self.max_size or resize_factor <= 0.25:
+            if (
+                len(compressed_image_data) <= self.max_size
+                or resize_factor <= 0.25
+            ):
                 _LOGGER.info(
-                    "Final resized image size: %d bytes", len(compressed_image_data)
+                    "Final resized image size: %d bytes",
+                    len(compressed_image_data),
                 )
                 return compressed_image_data
 

@@ -18,7 +18,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.error("No topic base provided in the config entry")
         return False
 
-    device, mqtt_handler = await _setup_device_and_data(hass, entry, topic_base)
+    device, mqtt_handler = await _setup_device_and_data(
+        hass, entry, topic_base
+    )
 
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setups(
@@ -50,7 +52,9 @@ async def _setup_device_and_data(
     max_image_size = entry.data.get("max_image_size", 14500)
     min_quality = entry.data.get("min_quality", 60)
     initial_quality = entry.data.get("initial_quality", 95)
-    max_concurrent_compressions = entry.data.get("max_concurrent_compressions", 5)
+    max_concurrent_compressions = entry.data.get(
+        "max_concurrent_compressions", 5
+    )
 
     mqtt_handler = MqttHandler(hass, topic_base)
     image_compressor = ImageCompressor(
@@ -70,10 +74,14 @@ async def _setup_device_and_data(
     return device, mqtt_handler
 
 
-async def _schedule_library_request(hass: HomeAssistant, mqtt_handler: MqttHandler):
+async def _schedule_library_request(
+    hass: HomeAssistant, mqtt_handler: MqttHandler
+):
     """Schedule the sending of a library request based on HA running state."""
     if hass.is_running:
-        _LOGGER.info("HASS is already running, sending library request immediately")
+        _LOGGER.info(
+            "HASS is already running, sending library request immediately"
+        )
         await mqtt_handler.send_library_request()
     else:
         _LOGGER.info("HASS not fully started, scheduling library request")
