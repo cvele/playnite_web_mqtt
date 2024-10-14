@@ -101,7 +101,7 @@ jobs:
           github_changelog_generator \
             -u cvele \
             -p playnite_web_mqtt \
-            --since-tag $(git describe --tags --abbrev=0) \
+            --since-tag $LATEST_TAG \
             --output CHANGELOG.md
           git add CHANGELOG.md
           git commit -m "CHANGELOG.md $NEW_VERSION"
