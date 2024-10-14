@@ -1,5 +1,4 @@
 import logging
-from asyncio import TimeoutError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,10 +47,6 @@ class ScriptExecutor:
             _LOGGER.error(
                 "KeyError while accessing script '%s': %s", script_name, ke
             )
-        except TimeoutError as te:
-            _LOGGER.error(
-                "Timeout while executing script '%s': %s", script_entity_id, te
-            )
         except Exception as e:
             _LOGGER.error(
                 "Unexpected error while executing script '%s': %s",
@@ -59,40 +54,23 @@ class ScriptExecutor:
                 e,
             )
 
-    async def _execute_script(self, script_entity_id, retries=2, timeout=10):
-        """Helper method to execute the script with retry and timeout"""
-        for attempt in range(1, retries + 1):
-            try:
-                await self.hass.services.async_call(
-                    "script",
-                    "turn_on",
-                    {"entity_id": script_entity_id},
-                    blocking=True,
-                    timeout=timeout,
-                )
-                _LOGGER.info(
-                    "Script '%s' executed successfully on attempt %d",
-                    script_entity_id,
-                    attempt,
-                )
-                return  # Exit if successful
-            except TimeoutError:
-                _LOGGER.warning(
-                    "Timeout on attempt %d for script '%s'. Retrying...",
-                    attempt,
-                    script_entity_id,
-                )
-            except Exception as e:
-                _LOGGER.error(
-                    "Error on attempt %d for script '%s': %s",
-                    attempt,
-                    script_entity_id,
-                    e,
-                )
-                if attempt == retries:
-                    _LOGGER.error(
-                        "Failed to execute script '%s' after %d attempts",
-                        script_entity_id,
-                        retries,
-                    )
-                    raise
+    async def _execute_script(self, script_entity_id):
+        """Helper method to execute the script."""
+        try:
+            await self.hass.services.async_call(
+                "script",
+                "turn_on",
+                {"entity_id": script_entity_id},
+                blocking=True,
+            )
+            _LOGGER.info(
+                "Script '%s' executed successfully",
+                script_entity_id,
+            )
+        except Exception as e:
+            _LOGGER.error(
+                "Error while executing script '%s': %s",
+                script_entity_id,
+                e,
+            )
+            raise
