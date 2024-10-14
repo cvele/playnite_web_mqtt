@@ -24,7 +24,7 @@ jobs:
         run: |
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Latest tag: $LATEST_TAG"
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_ENV
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
 
       - name: Parse the latest tag and bump minor version if no input provided
         id: set_version
@@ -47,7 +47,7 @@ jobs:
             fi
           fi
           echo "New version: $NEW_VERSION"
-          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Check if branch already exists
         run: |
@@ -56,7 +56,7 @@ jobs:
             echo "Branch $BRANCH_NAME already exists. Exiting."
             exit 1
           fi
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Check if tag already exists
         run: |
