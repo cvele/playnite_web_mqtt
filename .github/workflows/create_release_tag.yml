@@ -69,11 +69,30 @@ jobs:
           git tag -a ${{ env.VERSION }} -m "${{ env.VERSION }}" --sign
           git push origin --tags
 
+      - name: Clean up files for release
+        run: |
+          mkdir -p release_artifact
+          rsync -av --progress custom_components/playnite_web_mqtt release_artifact/custom_components/playnite_web_mqtt \
+            --exclude '__pycache__' \
+            --exclude '*.pyc' \
+            --exclude 'tests' \
+            --exclude 'requirements-dev.txt'
+
+          cp hacs.json release_artifact/
+          cp LICENSE release_artifact/
+          cp readme.md release_artifact/
+          cp -r translations release_artifact/custom_components/playnite_web_mqtt/
+
+          cd release_artifact
+          zip -r ../playnite_web_mqtt-${{ env.VERSION }}.zip .
+          cd ..
+
       - name: Create GitHub Release using GitHub CLI
         run: |
           gh release create ${{ env.VERSION }} \
             --title "${{ env.VERSION }}" \
             --notes-file CHANGELOG.md \
             --target release
+            playnite_web_mqtt-${{ env.VERSION }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
