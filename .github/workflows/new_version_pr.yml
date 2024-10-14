@@ -24,7 +24,7 @@ jobs:
         run: |
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Latest tag: $LATEST_TAG"
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_ENV
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
 
       - name: Parse the latest tag and bump minor version if no input provided
         id: set_version
@@ -32,8 +32,9 @@ jobs:
           if [ "${{ github.event.inputs.semver_input }}" != "" ]; then
             NEW_VERSION=${{ github.event.inputs.semver_input }}
           else
-            LATEST_TAG=${{ env.latest_tag }}
             VERSION_REGEX="^v([0-9]+)\.([0-9]+)\.([0-9]+)$"
+            
+            echo "Latest tag: $LATEST_TAG"
             if [[ $LATEST_TAG =~ $VERSION_REGEX ]]; then
               MAJOR="${BASH_REMATCH[1]}"
               MINOR="${BASH_REMATCH[2]}"
@@ -41,12 +42,21 @@ jobs:
               PATCH=$((PATCH + 1))
               NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
             else
-              echo "Latest tag does not follow semantic versioning. Using fallback v0.0.0."
+              echo "Latest tag $LATEST_TAG does not follow semantic versioning. Using fallback v0.0.0."
               NEW_VERSION="v0.0.0"
             fi
           fi
           echo "New version: $NEW_VERSION"
-          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Check if branch already exists
+        run: |
+          BRANCH_NAME="release/$NEW_VERSION"
+          if git ls-remote --exit-code --heads origin "$BRANCH_NAME"; then
+            echo "Branch $BRANCH_NAME already exists. Exiting."
+            exit 1
+          fi
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
       - name: Check if tag already exists
         run: |
@@ -58,7 +68,7 @@ jobs:
 
       - name: Create a new branch
         run: |
-          git checkout -b r/${{ env.new_version }}
+          git checkout -b release/$NEW_VERSION
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v6
@@ -74,9 +84,9 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          echo "${{ env.new_version }}" > VERSION
+          echo "$NEW_VERSION" > VERSION
           git add VERSION
-          git commit -m "Release version ${{ env.new_version }}"
+          git commit -m "Release version $NEW_VERSION"
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -91,35 +101,37 @@ jobs:
           github_changelog_generator \
             -u cvele \
             -p playnite_web_mqtt \
-            --since-tag $(git describe --tags --abbrev=0) \
+            --since-tag $LATEST_TAG \
             --output CHANGELOG.md
           git add CHANGELOG.md
-          git commit -m "CHANGELOG.md ${{ env.new_version }}"
+          git commit -m "CHANGELOG.md $NEW_VERSION"
         env:
           CHANGELOG_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update version in manifest.json
+        run: |
+          SEMVER="${NEW_VERSION#v}"
+          jq --arg version "$SEMVER" '.version = $version' custom_components/playnite_web_mqtt/manifest.json > temp.json && mv temp.json custom_components/playnite_web_mqtt/manifest.json
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add custom_components/playnite_web_mqtt/manifest.json
+          git commit -m "Bump manifest version to $NEW_VERSION"
+
       - name: Push new branch
         run: |
-          git push origin r/${{ env.new_version }}
+          git push origin release/$NEW_VERSION
 
       - name: Create pull request using GitHub CLI
         run: |
-          gh pr create -B release -H r/${{ env.new_version }} \
-            --title '${{ env.new_version }} @sourcery-ai' \
-            --body '@sourcery-ai summary'
+          gh pr create -B main -H release/$NEW_VERSION \
+            --title '${NEW_VERSION} @sourcery-ai' \
+            --body '@sourcery-ai summary @sourcery-ai review'
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 
       - name: Enable auto-merge for the pull request
         run: |
-          pr_number=$(gh pr list --head "r/${{ env.new_version }}" --json number --jq '.[0].number')
+          pr_number=$(gh pr list --head "release/$NEW_VERSION" --json number --jq '.[0].number')
           gh pr merge $pr_number --auto --squash
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-
-      - name: Add comment to pull request
-        run: |
-          pr_number=$(gh pr list --head "r/${{ env.new_version }}" --json number --jq '.[0].number')
-          gh pr comment $pr_number --body "@sourcery-ai review"
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}

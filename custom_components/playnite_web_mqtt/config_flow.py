@@ -2,8 +2,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.core import callback
-
-from . import DOMAIN
+from .const import DOMAIN
 
 
 class PlayniteMQTTConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -39,6 +38,7 @@ class PlayniteMQTTConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
+        """Get the options flow for this handler."""
         return PlayniteMQTTOptionsFlow(config_entry)
 
 
@@ -58,19 +58,19 @@ class PlayniteMQTTOptionsFlow(config_entries.OptionsFlow):
             {
                 vol.Required(
                     "mqtt_broker",
-                    default=self.config_entry.options.get("mqtt_broker", ""),
+                    default=self.config_entry.data.get("mqtt_broker", ""),
                 ): str,
                 vol.Optional(
                     "mqtt_username",
-                    default=self.config_entry.options.get("mqtt_username", ""),
+                    default=self.config_entry.data.get("mqtt_username", ""),
                 ): str,
                 vol.Optional(
                     "mqtt_password",
-                    default=self.config_entry.options.get("mqtt_password", ""),
+                    default=self.config_entry.data.get("mqtt_password", ""),
                 ): str,
                 vol.Optional(
                     "topic_base",
-                    default=self.config_entry.options.get(
+                    default=self.config_entry.data.get(
                         "topic_base", "playnite"
                     ),
                 ): str,

@@ -1,0 +1,38 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "mqtt_broker": "MQTT Broker",
+          "mqtt_port": "MQTT Port",
+          "mqtt_username": "MQTT Username",
+          "mqtt_password": "MQTT Password",
+          "topic_base": "Base MQTT Topic"
+        },
+        "title": "Configure Playnite Web MQTT",
+        "description": "Please enter your MQTT broker details."
+      }
+    },
+    "error": {
+      "invalid_broker": "Invalid MQTT broker address"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "mqtt_broker": "MQTT Broker",
+          "mqtt_username": "MQTT Username",
+          "mqtt_password": "MQTT Password",
+          "topic_base": "Base MQTT Topic",
+          "max_image_size": "Max Image Size (KB)",
+          "min_quality": "Minimum Image Quality",
+          "initial_quality": "Initial Image Quality",
+          "max_concurrent_compressions": "Max Concurrent Compressions"
+        },
+        "title": "Configure Playnite MQTT Options",
+        "description": "Configure additional options for Playnite Web MQTT."
+      }
+    }
+  }
+}

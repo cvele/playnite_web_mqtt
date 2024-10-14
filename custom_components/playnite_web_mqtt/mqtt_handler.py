@@ -1,7 +1,7 @@
-import logging
 import asyncio
-from homeassistant.components.mqtt import async_subscribe
-from homeassistant.components.mqtt import async_publish
+import logging
+
+from homeassistant.components.mqtt import async_publish, async_subscribe
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -16,6 +16,26 @@ class MqttHandler:
         self.releases_and_cover_topic = f"{self.topic_base}/entity/release/#"
         self.state_topic = f"{self.topic_base}/response/game/state"
         self._unsubscribe_callback = None
+        self.connection_topic = f"{self.topic_base}/connection"
+
+    async def subscribe_to_connection(self, callback, entry_id):
+        """Subscribe to the MQTT topic for connection updates."""
+        try:
+            _LOGGER.debug(
+                "Subscribing to %s for connection updates",
+                self.connection_topic,
+            )
+
+            async def callback_wrapper(msg):
+                await callback(self.hass, msg, entry_id)
+
+            self._unsubscribe_callback = await async_subscribe(
+                self.hass,
+                self.connection_topic,
+                callback_wrapper,
+            )
+        except Exception as e:
+            _LOGGER.error("Failed to subscribe to connection topic: %s", e)
 
     async def subscribe_to_game_state(self, callback):
         """Subscribe to the MQTT topic for game state updates."""
