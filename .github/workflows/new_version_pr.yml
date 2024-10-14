@@ -110,7 +110,8 @@ jobs:
 
       - name: Update version in manifest.json
         run: |
-          jq --arg version "$NEW_VERSION" '.version = $version' custom_components/playnite_web_mqtt/manifest.json > temp.json && mv temp.json custom_components/playnite_web_mqtt/manifest.json
+          SEMVER="${NEW_VERSION#v}"
+          jq --arg version "$SEMVER" '.version = $version' custom_components/playnite_web_mqtt/manifest.json > temp.json && mv temp.json custom_components/playnite_web_mqtt/manifest.json
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add custom_components/playnite_web_mqtt/manifest.json
