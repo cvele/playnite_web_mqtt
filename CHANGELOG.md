@@ -6,7 +6,7 @@
 
 **Merged pull requests:**
 
-- Release 5 [\#101](https://github.com/cvele/playnite_web_mqtt/pull/101) ([cvele](https://github.com/cvele))
+- Updated release pipeline [\#101](https://github.com/cvele/playnite_web_mqtt/pull/101) ([cvele](https://github.com/cvele))
 - Readme [\#100](https://github.com/cvele/playnite_web_mqtt/pull/100) ([cvele](https://github.com/cvele))
 
 
