@@ -6,6 +6,8 @@
 [![Hassfest](https://github.com/cvele/playnite_web_mqtt/actions/workflows/validate_hassfest.yml/badge.svg)](https://github.com/cvele/playnite_web_mqtt/actions/workflows/validate_hassfest.yml)
 [![CI](https://github.com/cvele/playnite_web_mqtt/actions/workflows/ci-checks.yml/badge.svg)](https://github.com/cvele/playnite_web_mqtt/actions/workflows/ci-checks.yml)
 
+> ⚠️ **Warning**: v0.0.12 Requires Playnite Web Plugin <9.0. 9.0 introduced new way of tracking game state, this will allow for improved switch state tracking - but not yet implemented.
+
 > ⚠️ **Warning**: This project is still in development. Use at your own risk!
 
 This custom Home Assistant integration allows you to monitor and control your Playnite games via MQTT. It creates game-related entities (such as switches and buttons) to start, stop, install, and uninstall games, as well as retrieve cover images and game library data from Playnite.
