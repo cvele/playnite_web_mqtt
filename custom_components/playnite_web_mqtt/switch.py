@@ -158,7 +158,13 @@ async def handle_game_discovery(
 
     topic_base = config_entry.data.get("topic_base")
     device_registry = dr.async_get(hass)
-    device = device_registry.async_get_device({(DOMAIN, topic_base)})
+    # async_get_device is deprecated since Home Assistant 2026.8 (removed in 2027.8)
+    if hasattr(device_registry, "async_get_device_by_identifier"):
+        device = device_registry.async_get_device_by_identifier(
+            (DOMAIN, topic_base), config_entry.entry_id
+        )
+    else:
+        device = device_registry.async_get_device({(DOMAIN, topic_base)})
 
     switch_data = {
         "id": game_id,
